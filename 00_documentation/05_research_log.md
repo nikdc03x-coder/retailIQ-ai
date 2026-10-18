@@ -93,3 +93,40 @@ Evaluate whether the selected XGBoost model produces reliable forecasts across d
 - Backtesting improvements: 64.81%, 28.88% and 30.41%.
   Only one holiday week was present in the held-out test period. The backtesting experiment evaluated rolling one-week-ahead predictions, not forecasts made eight weeks into the future. Additional datasets and evaluation periods would strengthen the findings.
   Complete automated verification, finalize the Phase 05 documentation, and begin anomaly detection.
+
+## Phase 06 — Retail Sales Anomaly Detection
+
+**Status:** Experiments completed; automated verification pending.
+
+### Research objective
+
+Identify unusual store-week sales behavior using statistical residual analysis and unsupervised machine learning.
+
+### Experiments completed
+
+1. Statistical residual detection using a Z-score threshold of 3.
+2. Isolation Forest using forecasting residuals, relative errors, sales changes and sales volume.
+3. Comparison of both detectors using agreement categories and Jaccard similarity.
+
+### Results
+
+- Test observations: 990 across 45 stores and 22 weeks.
+- Statistical anomalies: 10.
+- Isolation Forest anomalies: 9.
+- Unique flagged observations: 15.
+- Flagged by both methods: 4.
+- Jaccard similarity: 26.67%.
+- Overall agreement: 98.89%.
+- Store 14 had four flagged weeks, three identified by both methods.
+
+### Key finding
+
+High overall agreement does not imply strong agreement on anomalous observations. The detectors identified different investigation candidates.
+
+### Limitations
+
+No confirmed anomaly labels are available. Forecasting errors are not necessarily business anomalies. Both methods require additional validation before operational deployment.
+
+### Next steps
+
+Complete automated testing, finalize the research documentation and create the Phase 06 Git milestone.

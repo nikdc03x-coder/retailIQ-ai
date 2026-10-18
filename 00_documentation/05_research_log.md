@@ -76,3 +76,20 @@ forecasting system.
 - Analyze prediction errors.
 - Consider rolling-origin backtesting.
 - Integrate forecasting results into the dashboard.
+
+Status: Experiments completed; final automated verification pending.
+Evaluate whether the selected XGBoost model produces reliable forecasts across different stores, weeks and historical evaluation periods.
+
+1. Analyzed 990 test predictions across 45 stores and 22 weeks.
+2. Calculated store-level MAE, RMSE, signed errors and holiday comparisons.
+3. Calculated store-relative WAPE and bias.
+4. Performed three expanding-window backtesting experiments.
+
+- Overall test MAE: 38,304.76.
+- Overall test WAPE: 3.68%.
+- Highest store-level WAPE: Store 7 at 6.91%.
+- Highest store-level MAE: Store 14 at 87,635.15.
+- XGBoost outperformed the baseline in all three backtesting folds.
+- Backtesting improvements: 64.81%, 28.88% and 30.41%.
+  Only one holiday week was present in the held-out test period. The backtesting experiment evaluated rolling one-week-ahead predictions, not forecasts made eight weeks into the future. Additional datasets and evaluation periods would strengthen the findings.
+  Complete automated verification, finalize the Phase 05 documentation, and begin anomaly detection.

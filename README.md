@@ -137,3 +137,55 @@ The final project report will provide a shorter, complete explanation of the res
 The data analysis, forecasting, reliability evaluation, anomaly detection and interactive dashboard phases have been implemented.
 
 The project is now in its final documentation and presentation stage.
+
+## Getting Started
+
+This project was developed using Python 3.12.
+
+### 1. Clone the repository
+
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd retailiq-ai
+```
+
+### 2. Create a virtual environment
+
+```bash
+python -m venv .venv
+source .venv/Scripts/activate
+```
+
+On Windows PowerShell, activate it using:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+### 3. Install the libraries
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+### 4. Prepare the data
+
+The project uses the Walmart retail sales dataset from Kaggle.
+
+Download the original dataset and follow the project's data preparation and experiment steps.
+
+The dashboard reads saved analytical results from `13_results/`, so those reports must be generated before starting the dashboard.
+
+### 5. Run the dashboard
+
+```bash
+python -m streamlit run 08_dashboard/main.py
+```
+
+Open the local URL displayed in the terminal.
+
+### 6. Run the tests
+
+```bash
+python -m pytest 12_tests/ -q
+```

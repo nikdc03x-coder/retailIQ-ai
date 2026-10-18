@@ -2,124 +2,94 @@
 
 **Project:** Retail Sales Analytics, Forecasting and Anomaly Detection  
 **Area:** Data Science and Machine Learning  
-**Status:** Completed prototype
-
----
+**Status:** Completed research prototype
 
 ## 1. Introduction
 
-Retail stores generate sales data every week. This data can tell us a lot about how a business is performing, but the information is not always easy to understand just by looking at numbers.
+Retail businesses collect sales data every week, but rows of numbers do not always make it clear what is happening in the business. A store manager may want to know which stores are doing well, whether sales are changing, and what to expect next week.
 
-For example, a store manager may want to know which departments are performing well, whether sales are increasing or decreasing, or how much stock might be needed in the coming weeks.
+I built **RetailIQ AI** to explore how data analysis and machine learning can help answer these questions. I did not want to stop after training one prediction model. I also wanted to check how reliable its predictions were and find unusual sales observations worth investigating.
 
-I wanted to explore how data science and machine learning could help answer some of these questions.
+The project brings these results together in an interactive dashboard.
 
-That is how I started RetailIQ AI.
+## 2. Problem and Goal
 
-The idea was to build a project that does more than predict sales. I also wanted to analyze historical business performance, check how reliable the predictions are, and identify unusual sales patterns.
+The main problem is turning historical retail sales data into information that is easier to understand and use.
 
-The final result is a Python-based project with an interactive dashboard where users can explore the findings.
+I focused on four questions:
 
-## 2. The Problem
+1. What can we learn from past sales across stores and departments?
+2. Can we predict weekly store sales using machine learning?
+3. Does the forecasting model perform consistently across stores and time periods?
+4. Can we flag unusual observations for further review?
 
-Businesses often have access to historical sales data but may struggle to turn it into useful information.
-
-In this project, I focused on four questions:
-
-1. What can we learn about a business from its historical sales?
-2. Can machine learning predict weekly store sales?
-3. How can we tell whether those predictions are reliable?
-4. Can we find unusual sales observations that deserve further investigation?
-
-These questions are connected. A model that predicts sales is useful, but understanding when it makes mistakes is equally important.
-
-Similarly, detecting an unusual observation is only the beginning. We still need to investigate why it happened.
+My goal was to build and evaluate a complete data science workflow, not a ready-to-use retail management product.
 
 ## 3. Dataset and Preparation
 
-I used a publicly available Walmart retail sales dataset from Kaggle.
+I used a publicly available **Walmart retail sales dataset from Kaggle**. It contains **421,570 sales records** from **45 stores** and **81 departments**, covering **143 weeks from February 2010 to October 2012**.
 
-The dataset contains approximately 421,570 sales records covering 45 stores and 81 departments. The data spans 143 weeks, from February 2010 to October 2012.
+The data includes weekly sales, store and department information, holiday indicators and related features.
 
-It includes weekly sales, holiday information, store characteristics and other related variables.
+Before the analysis, I checked the structure and quality of the data and prepared it for reuse in later experiments. I kept negative sales values instead of removing them automatically. Such values may reflect returns or adjustments, and dropping them without checking could change the results.
 
-Before starting the analysis, I checked the dataset structure and prepared the data for further experiments.
-
-One important decision was to preserve negative sales values rather than automatically remove them. Negative sales can represent returns or adjustments, so deleting them without investigation could change the meaning of the data.
-
-The cleaned and prepared data was saved in Parquet format so it could be reused in later phases.
+The prepared data was saved in **Parquet** format. This made it possible to reuse the same analytical dataset in different parts of the project.
 
 ## 4. Business Analytics
 
-I started with business analytics before building any machine learning models.
+I started by exploring the data before building the forecasting models. I examined sales over time, compared store and department performance, and looked at holiday and non-holiday sales patterns.
 
-The goal was to understand the sales data and identify useful patterns.
+This stage helped me understand the scale of the data and how sales differed between parts of the business. I also saved summary reports so the dashboard could display the results without repeating the analysis each time.
 
-I explored overall sales trends, store-level performance, department performance and differences between holiday and non-holiday periods.
-
-I also created saved analytical reports that the dashboard could load later.
-
-This phase helped me understand why exploratory data analysis is important. Before predicting future values, we first need to understand what the existing data represents.
+One thing I learned here was that understanding the data should come before choosing a machine learning algorithm.
 
 ## 5. Sales Forecasting
 
-The next step was to predict weekly store sales.
+The forecasting task was to estimate **weekly sales for each store**.
 
-For this experiment, I compared a simple baseline with machine learning approaches, including Random Forest and XGBoost.
+I compared three approaches: a simple **naive baseline**, **Random Forest**, and **XGBoost**. The baseline gave me a reference point. If a more complex model did not perform better than that simple prediction, there would be little reason to prefer it.
 
-The baseline was important because I wanted to know whether a more advanced model was genuinely improving the predictions.
-
-I used past sales information to create features such as previous sales values and rolling averages.
-
-The models were evaluated using time-based data splits rather than randomly mixing historical and future observations.
-
-This helped make the evaluation more realistic for a forecasting problem.
+The models used information from previous weeks, including lagged sales and rolling averages. I kept the evaluation in time order rather than randomly mixing earlier and later observations.
 
 ### Forecasting results
 
-| Model          |  Test MAE |
-| -------------- | --------: |
-| Naive baseline | 51,307.24 |
-| Random Forest  | 43,642.60 |
-| XGBoost        | 38,304.76 |
+| Model          |      Test MAE |
+| -------------- | ------------: |
+| Naive baseline |     51,307.24 |
+| Random Forest  |     43,642.60 |
+| XGBoost        | **38,304.76** |
 
-XGBoost achieved the lowest test MAE among these models.
+**XGBoost had the lowest test MAE**, improving on the naive baseline by about **25.34%**.
 
-Its test MAE was approximately 25.34% lower than the naive baseline.
+MAE, or _Mean Absolute Error_, measures the average size of prediction mistakes. A lower MAE is better. These results show how the models performed on the held-out historical test period; they do not guarantee the same performance on future data.
 
-However, this result does not mean the model will always perform equally well on new data.
+## 6. Forecast Reliability
 
-## 6. Checking Forecast Reliability
+After selecting XGBoost, I wanted to understand when its forecasts worked well and when they did not.
 
-After obtaining a forecasting model, I wanted to know how dependable its predictions were.
+I compared errors across stores, examined holiday and non-holiday weeks, and used three rolling backtest folds. Rolling backtesting checks performance over different historical evaluation periods rather than depending on only one split.
 
-A single test score cannot explain whether a model performs equally well across different stores or time periods.
+The main findings were:
 
-To investigate this, I studied forecasting errors across stores, compared holiday and non-holiday observations, and performed rolling backtesting.
+- **Test WAPE:** about **3.68%**.
+- **Backtest improvements over the baseline:** about **64.81%**, **28.88%**, and **30.41%** across the three folds.
+- Errors varied between stores, so one overall score did not tell the full story.
+- In the saved holiday comparison, holiday observations had a higher MAE than non-holiday observations.
 
-The test WAPE was approximately 3.68%.
+WAPE, or _Weighted Absolute Percentage Error_, compares the total absolute prediction error with the total actual sales magnitude. It helps express the error relative to the scale of sales.
 
-The backtesting experiments showed improvements over the baseline of approximately 64.81%, 28.88% and 30.41% across three folds.
+An important limitation is that this experiment evaluated **one-week-ahead forecasts with previous actual sales available**. It does not demonstrate accurate long-range forecasting without updated sales information.
 
-I also found that some stores had larger forecasting errors than others.
+## 7. Anomaly Detection
 
-This showed me that an overall model score can hide important differences in performance.
+I then explored whether the forecasting results could help highlight unusual store-week observations.
 
-An important limitation is that the experiments evaluated one-week-ahead forecasts with previous actual sales available. They do not demonstrate unrestricted long-range forecasting.
+I used two methods:
 
-## 7. Finding Unusual Sales Patterns
+- **Statistical residual analysis:** Looks for unusually large prediction errors using a Z-score threshold.
+- **Isolation Forest:** Looks for unusual observations based on the patterns in the features used by the detector.
 
-For the next phase, I explored anomaly detection.
-
-I wanted to identify observations where sales or prediction errors looked unusual compared with typical patterns.
-
-I used two approaches:
-
-**Statistical residual analysis:** This method examines how unusual the model's prediction errors are compared with a reference distribution.
-
-**Isolation Forest:** This machine learning method looks for observations with unusual combinations of characteristics.
-
-I compared the results of both approaches instead of assuming that one detector was always correct.
+I compared the two methods because different detectors can flag different observations. Agreement between them is useful to examine, but it does not prove an observation is a real business incident.
 
 ### Anomaly detection results
 
@@ -129,80 +99,71 @@ I compared the results of both approaches instead of assuming that one detector 
 | Statistical detector flags       |           10 |
 | Isolation Forest flags           |            9 |
 | Flagged by both detectors        |            4 |
-| Flagged by at least one detector |           15 |
+| Flagged by at least one detector |       **15** |
 
-The Jaccard similarity between the sets of flagged observations was approximately 26.67%.
+The detectors had a **Jaccard similarity of about 26.67%** among the observations they flagged. In simple terms, their flagged sets overlapped only partly.
 
-This means the two detectors did not identify exactly the same observations.
-
-An important point is that these are only **potential anomalies**. Because the dataset does not provide verified anomaly labels for this experiment, I cannot claim that every flagged observation represents a real business problem.
+The project has **no verified anomaly labels**, so I cannot report detection accuracy, precision or recall. These 15 observations are **candidates for investigation**, not confirmed fraud, errors or other incidents. The analysis is retrospective, not a live alerting system.
 
 ## 8. Interactive Dashboard
 
-After completing the experiments, I built a Streamlit dashboard to present the results in a more understandable way.
+To make the findings easier to explore, I built a dashboard with **Streamlit** and **Plotly**.
 
-The dashboard has five pages:
+It has five pages:
 
-- **Overview:** A summary of historical sales and overall trends.
-- **Business Analytics:** Store performance, department performance and holiday comparisons.
-- **Sales Forecasting:** Actual versus predicted sales, model performance and feature importance.
-- **Forecast Reliability:** Forecast errors, rolling backtests and holiday reliability.
-- **Anomaly Investigation:** Detector comparisons, filters and a queue of observations for review.
+| Page                  | What it shows                                                          |
+| --------------------- | ---------------------------------------------------------------------- |
+| Overview              | Overall historical sales patterns                                      |
+| Business Analytics    | Store, department and holiday comparisons                              |
+| Sales Forecasting     | Actual versus predicted sales, model comparison and feature importance |
+| Forecast Reliability  | Prediction errors, holiday comparisons and rolling backtests           |
+| Anomaly Investigation | Detector agreement and filtered observations for review                |
 
-I used Plotly for interactive charts.
+The dashboard reads saved analysis and experiment reports. It does **not** retrain the models when someone opens a page. This keeps the experiments separate from the presentation.
 
-The dashboard loads previously saved reports instead of training the models every time it runs. This keeps visualization separate from experimentation.
+## 9. Testing and Project Workflow
 
-## 9. Testing and Verification
+I organized the work into separate Git branches for the main phases, including data preparation, analytics, forecasting, reliability analysis, anomaly detection and the dashboard.
 
-I used pytest to check important parts of the project.
+I also wrote automated tests using **pytest**. These checked parts of the data workflow, saved results, forecasting reports, detector counts and dashboard report consistency.
 
-The tests covered data processing, analytical results, forecasting outputs, detector comparisons and dashboard report consistency.
+At the end of the dashboard phase, **all 73 automated tests passed**. The same 73 tests passed again after the documentation was merged into `main`.
 
-At the end of Phase 07, the complete automated test suite passed:
-
-**73 tests passed.**
-
-I also used Git branches and commits to organize development into separate phases.
-
-This helped me track changes and understand which part of the project was developed at each stage.
+Passing tests is useful evidence that the tested parts behave as expected, but it is not a guarantee that the project has no errors or that the results will generalize to other datasets.
 
 ## 10. What I Learned
 
-This project changed how I think about building machine learning applications.
+The biggest lesson from RetailIQ AI was that a machine learning project is not finished when a model produces a good score.
 
-Initially, it is easy to focus mainly on training a model and improving its accuracy.
+I learned why it is important to start with data quality checks, compare models against a baseline, keep time order during forecasting evaluation, and investigate where the model makes mistakes.
 
-But while working on RetailIQ AI, I learned that several other questions are equally important.
+I also learned to be careful when interpreting anomaly flags. A detector can tell us that something looks unusual, but further evidence is needed to explain why.
 
-For example, I learned why a simple baseline is necessary, why forecasting data should be evaluated in time order, and why we should study model errors instead of looking only at a final performance score.
-
-I also understood that anomaly detection is not the same as confirming that something went wrong.
-
-Another important learning experience was documentation. Writing down the methods, results and limitations helped me understand the project more clearly.
+Working with Git, tests, saved experiment results and research notes helped me keep the project organized and understand what I had actually built.
 
 ## 11. Limitations and Future Work
 
-RetailIQ AI is a research prototype, not a complete commercial system.
+RetailIQ AI is a **research prototype**, not a production retail system.
 
-It uses historical sales data, so its findings may not reflect current retail conditions.
+Its main limitations are:
 
-The forecasting experiments do not prove that the system can predict many weeks ahead without new actual sales information.
+- The dataset covers **2010–2012**, so the patterns may not reflect current retail behavior.
+- Forecasting results come from historical tests and may change with new data.
+- The one-week-ahead evaluation uses previous actual sales; longer forecasting horizons need separate experiments.
+- Holiday and store comparisons are descriptive and do not establish the causes of differences.
+- The anomaly flags cannot be verified without confirmed labels or a real investigation process.
+- The dashboard uses saved results rather than a live retail database.
 
-The anomaly detection results also need further validation because confirmed anomaly labels are not available.
-
-In the future, the project could be extended with newer retail datasets, more forecasting experiments, stronger anomaly validation and integration with a real sales database.
+Possible future improvements include testing with newer datasets, evaluating longer forecast horizons, collecting verified anomaly examples and connecting the workflow to an updated sales database.
 
 ## 12. Conclusion
 
-RetailIQ AI helped me explore a complete data science workflow using a real retail dataset.
+RetailIQ AI helped me put several parts of data science into one project: understanding data, comparing forecasting models, checking prediction reliability, investigating unusual observations and presenting the results clearly.
 
-The project started with understanding historical business data, continued with forecasting and reliability evaluation, and ended with anomaly detection and an interactive dashboard.
+XGBoost performed best in the saved forecasting comparison, but the reliability and anomaly experiments showed why a single performance score is not enough to judge a system.
 
-The most important outcome for me was not just the final model performance.
-
-It was learning how to connect data analysis, machine learning, evaluation and visualization into a project that addresses a practical business problem.
+For me, the value of this project is both in the results and in learning how to build, test and explain a complete machine learning workflow for a practical business problem.
 
 ---
 
-_The results in this report come from the project's saved experiments. They describe historical evaluations rather than guaranteed performance on future data._
+_This report describes results from historical experiments. It does not claim proven performance on future business data._

@@ -8,3 +8,5 @@ pytest>=8,<10
 python-dotenv>=1,<2matplotlib>=3.8,<4
 scikit-learn
 xgboost
+python-dotenv>=1,<2
+matplotlib>=3.8,<4

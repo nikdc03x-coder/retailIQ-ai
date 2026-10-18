@@ -21,3 +21,7 @@ models/*
 
 13_results/*
 !13_results/.gitkeep
+# Downloaded datasets and Python cache
+data/downloads/
+__pycache__/
+*.py[cod]

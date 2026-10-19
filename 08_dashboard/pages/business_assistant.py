@@ -41,6 +41,18 @@ EXAMPLES = [
     ),
 ]
 
+# Questions currently supported by the verified context engine.
+# Additional ranking and comparison questions will be added
+# as their backend calculations are implemented and tested.
+QUESTION_SUGGESTIONS = [
+    "Which store has the highest sales?",
+    "Which department has the highest sales?",
+    "Which forecasting model has the best MAE?",
+    "What is the MAE for Store 14?",
+    "How many anomalies were flagged?",
+    "What are the top SHAP features?",
+]
+
 
 # Only use metrics that exist in the saved project reports.
 METRIC_FIELDS = [
@@ -580,8 +592,9 @@ def process_question(question):
 
 
 
+
 def render():
-    """Display the Business Assistant with custom question input."""
+    """Display the chat with searchable question suggestions."""
 
     initialize_chat()
     apply_styles()
@@ -589,29 +602,36 @@ def render():
 
     messages = st.session_state.retailiq_chat_messages
 
+    # Show quick question buttons when the chat is empty.
     selected_question = None
 
-    # Display suggested questions only when chat is empty.
     if not messages:
         selected_question = show_suggestions()
 
-    # Display all previous messages and their interactive insights.
+    # Display previous questions, answers, metrics and charts.
     show_history()
 
     st.divider()
 
-    # Let users enter their own business questions at any time.
-    st.markdown("### Ask Your Own Question")
+    st.markdown("### Ask RetailIQ AI")
+    st.caption(
+        "Start typing to see matching questions, or write "
+        "your own business question."
+    )
 
-    with st.form("retailiq_custom_question_form", clear_on_submit=True):
-        custom_question = st.text_area(
-            "What would you like to know?",
-            placeholder=(
-                "Example: Which store has the highest total sales? "
-                "Or: How many anomalies were detected?"
-            ),
-            height=100,
-            max_chars=500,
+    # A searchable select box supports both autocomplete
+    # and completely custom user-written questions.
+    with st.form(
+        "retailiq_question_form",
+        clear_on_submit=True,
+    ):
+        question = st.selectbox(
+            "Your business question",
+            options=QUESTION_SUGGESTIONS,
+            index=None,
+            accept_new_options=True,
+            placeholder="Type a question about your retail data...",
+            key="retailiq_smart_question",
         )
 
         submitted = st.form_submit_button(
@@ -621,25 +641,24 @@ def render():
             width="stretch",
         )
 
-    # Both suggested questions and custom questions use
-    # the same verified project data and Gemini service.
-    question = None
+    # Quick suggestions and custom questions share the backend.
+    final_question = None
 
     if submitted:
-        if custom_question.strip():
-            question = custom_question.strip()
+        if question and question.strip():
+            final_question = question.strip()
         else:
-            st.warning("Please enter a question.")
+            st.warning("Please enter or select a question.")
 
     elif selected_question:
-        question = selected_question
+        final_question = selected_question
 
-    if question:
-        process_question(question)
+    if final_question:
+        process_question(final_question)
         st.rerun()
 
     st.caption(
-        "Ask about the historical RetailIQ AI dataset, sales, "
-        "forecasting, reliability, anomalies or SHAP. "
-        "Only questions supported by the saved reports can be answered."
+        "RetailIQ AI uses verified historical project reports. "
+        "Custom questions are accepted as input, but only "
+        "supported analyses can currently be answered."
     )

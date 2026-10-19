@@ -11,3 +11,4 @@ xgboost
 python-dotenv>=1,<2
 matplotlib>=3.8,<4
 shap>=0.46,<1
+google-genai>=1,<2

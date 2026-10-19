@@ -112,7 +112,7 @@ def render():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="overview_weekly_sales",
     )
 
@@ -143,7 +143,7 @@ def render():
 
         st.plotly_chart(
             monthly_fig,
-            use_container_width=True,
+            width="stretch",
             key="overview_monthly_sales",
         )
 
@@ -164,14 +164,14 @@ def render():
 
         st.plotly_chart(
             distribution,
-            use_container_width=True,
+            width="stretch",
             key="overview_sales_distribution",
         )
 
     with st.expander("Explore underlying weekly sales data"):
         st.dataframe(
             filtered,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 

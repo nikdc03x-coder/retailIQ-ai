@@ -28,7 +28,7 @@ def chart(fig, key):
         margin=dict(l=10, r=10, t=40, b=10),
         legend_title_text="",
     )
-    st.plotly_chart(fig, use_container_width=True, key=key)
+    st.plotly_chart(fig, width="stretch", key=key)
 
 
 def render():
@@ -387,20 +387,20 @@ def render():
     with st.expander("Explore store performance data"):
         st.dataframe(
             selected,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
     with st.expander("Explore department performance data"):
         st.dataframe(
             departments,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
     with st.expander("Explore selected store-week data"):
         st.dataframe(
             weekly,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )

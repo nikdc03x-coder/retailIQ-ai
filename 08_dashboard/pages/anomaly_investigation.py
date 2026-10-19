@@ -175,7 +175,7 @@ def render():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="anomaly_detector_agreement_chart",
     )
 
@@ -286,7 +286,7 @@ def render():
         filtered[columns].sort_values(
             "Date", ascending=False
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -316,7 +316,7 @@ def render():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="anomaly_investigation_scatter",
     )
 
@@ -344,13 +344,13 @@ def render():
     with st.expander("View complete detector comparison"):
         st.dataframe(
             comparison,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
     with st.expander("View detector agreement summary"):
         st.dataframe(
             agreement,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )

@@ -103,7 +103,7 @@ def render_model_comparison():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="forecast_model_comparison_chart",
     )
 
@@ -143,7 +143,7 @@ def render_model_comparison():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="forecast_feature_importance_chart",
     )
 
@@ -156,14 +156,14 @@ def render_model_comparison():
     with st.expander("View model comparison data"):
         st.dataframe(
             comparison,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
     with st.expander("View feature importance data"):
         st.dataframe(
             importance,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
  
@@ -307,7 +307,7 @@ def render():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="forecast_actual_vs_predicted",
     )
 
@@ -336,14 +336,14 @@ def render():
 
     st.plotly_chart(
         error_fig,
-        use_container_width=True,
+        width="stretch",
         key="forecast_error_chart",
     )
 
     with st.expander("View saved prediction records"):
         st.dataframe(
             filtered,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 

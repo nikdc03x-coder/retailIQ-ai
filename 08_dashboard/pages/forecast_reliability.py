@@ -113,7 +113,7 @@ def render_reliability_experiments():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="reliability_backtest_comparison",
     )
 
@@ -148,7 +148,7 @@ def render_reliability_experiments():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="reliability_backtest_improvement",
     )
 
@@ -200,7 +200,7 @@ def render_reliability_experiments():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="reliability_holiday_comparison",
     )
 
@@ -212,14 +212,14 @@ def render_reliability_experiments():
     with st.expander("View rolling backtest results"):
         st.dataframe(
             backtests,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
     with st.expander("View holiday error results"):
         st.dataframe(
             holidays,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
@@ -361,7 +361,7 @@ def render():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="reliability_store_ranking",
     )
 
@@ -401,14 +401,14 @@ def render():
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="reliability_weekly_errors",
     )
 
     with st.expander("View store reliability metrics"):
         st.dataframe(
             summary,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 

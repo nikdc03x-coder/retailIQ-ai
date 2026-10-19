@@ -122,7 +122,7 @@ def render_global_importance(global_data):
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="shap_global_importance",
     )
 
@@ -227,7 +227,7 @@ def render_local_explanation(local_data):
 
     st.plotly_chart(
         fig,
-        use_container_width=True,
+        width="stretch",
         key="shap_local_waterfall",
     )
 
@@ -274,7 +274,7 @@ def render_local_explanation(local_data):
             contribution_table[
                 ["Feature", "Contribution", "Meaning"]
             ],
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 

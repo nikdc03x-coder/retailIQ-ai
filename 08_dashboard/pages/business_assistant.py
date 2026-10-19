@@ -13,7 +13,7 @@ from gemini_service import answer_question
 logger = logging.getLogger(__name__)
 
 
-# These questions are supported by the existing context engine.
+# Show common project questions as clickable cards.
 EXAMPLES = [
     (
         "Store Performance",
@@ -41,9 +41,9 @@ EXAMPLES = [
     ),
 ]
 
-# Questions currently supported by the verified context engine.
-# Additional ranking and comparison questions will be added
-# as their backend calculations are implemented and tested.
+
+# Suggestions appear as users type in the searchable question field.
+# Users may also enter questions not included in this list.
 QUESTION_SUGGESTIONS = [
     "Which store has the highest sales?",
     "Which department has the highest sales?",
@@ -51,10 +51,17 @@ QUESTION_SUGGESTIONS = [
     "What is the MAE for Store 14?",
     "How many anomalies were flagged?",
     "What are the top SHAP features?",
+    "Show top 5 stores by sales.",
+    "Show top 10 departments.",
+    "Which are the bottom 5 stores?",
+    "Compare Store 10 and Store 20.",
+    "How much more did Store 20 sell than Store 10?",
+    "What's the sales difference between Store 10 and Store 20?",
+    "Which five stores generated the most sales?",
+    "List the 10 lowest-selling departments.",
 ]
 
-
-# Only use metrics that exist in the saved project reports.
+# Only display metrics available in saved project reports.
 METRIC_FIELDS = [
     "Union",
     "Statistical_Anomalies",
@@ -69,19 +76,18 @@ METRIC_FIELDS = [
 
 
 def initialize_chat():
-    """Keep conversation messages during the current session."""
+    """Keep messages during the current Streamlit session."""
 
     if "retailiq_chat_messages" not in st.session_state:
         st.session_state["retailiq_chat_messages"] = []
 
 
 def apply_styles():
-    """Use native Streamlit widgets with modern typography and spacing."""
+    """Apply modern styling using native Streamlit widgets."""
 
     st.html(
         """
         <style>
-        /* Modern typography and comfortable line spacing */
         [data-testid="stMain"] {
             font-family:
                 "Segoe UI Variable",
@@ -102,20 +108,16 @@ def apply_styles():
             font-size: clamp(30px, 3vw, 43px);
         }
 
-        /* Modern bordered cards */
         [data-testid="stMain"]
         [data-testid="stVerticalBlockBorderWrapper"] {
             border-radius: 16px;
         }
 
-        /* Compact interactive buttons */
         [data-testid="stMain"] button {
             border-radius: 11px;
             min-height: 40px;
-            transition: background 0.15s ease;
         }
 
-        /* Custom question area */
         [data-testid="stMain"] [data-testid="stForm"] {
             border-radius: 18px;
             border: 1px solid rgba(139, 127, 245, 0.23);
@@ -123,18 +125,11 @@ def apply_styles():
             background: rgba(115, 104, 225, 0.035);
         }
 
-        /* Input field */
-        [data-testid="stMain"] textarea {
-            border-radius: 12px;
-            line-height: 1.6;
-        }
-
-        /* Gemini response bubbles */
-        [data-testid="stMain"] [data-testid="stChatMessage"] {
+        [data-testid="stMain"]
+        [data-testid="stChatMessage"] {
             border-radius: 16px;
         }
 
-        /* KPI cards */
         [data-testid="stMain"] [data-testid="stMetric"] {
             background: rgba(113, 104, 210, 0.065);
             border: 1px solid rgba(139, 127, 245, 0.16);
@@ -142,7 +137,6 @@ def apply_styles():
             border-radius: 13px;
         }
 
-        /* Tabs */
         [data-testid="stMain"] [data-testid="stTabs"] button {
             font-weight: 600;
         }
@@ -152,7 +146,7 @@ def apply_styles():
 
 
 def show_header():
-    """Display a clean product-style header."""
+    """Display the assistant title and new-chat button."""
 
     left, right = st.columns(
         [5, 1],
@@ -188,12 +182,12 @@ def show_header():
 
 
 def show_suggestions():
-    """Show large clickable cards for common business questions."""
+    """Show clickable suggestions when starting a new conversation."""
 
     st.subheader("Explore your data")
 
     st.caption(
-        "Choose an analysis below, or enter your own question."
+        "Choose an analysis below, or enter your own business question."
     )
 
     selected = None
@@ -226,53 +220,45 @@ def show_suggestions():
 
 
 def show_question_input():
-    """Provide an obvious input for custom user questions."""
+    """Provide autocomplete and allow completely custom questions."""
 
-    st.subheader("Ask your own question")
+    st.subheader("Ask RetailIQ AI")
+
+    st.caption(
+        "Start typing to see suggestions, or enter your own question."
+    )
 
     with st.form(
         "ri_question_form",
         clear_on_submit=True,
     ):
-        question = st.text_area(
+        question = st.selectbox(
             "Your business question",
-            placeholder=(
-                "For example: Which department has the highest sales?"
-            ),
-            height=95,
-            max_chars=500,
+            options=QUESTION_SUGGESTIONS,
+            index=None,
+            accept_new_options=True,
+            placeholder="Type a question about your retail data...",
+            key="retailiq_smart_question",
         )
 
-        left, right = st.columns(
-            [4, 1],
-            vertical_alignment="center",
+        submitted = st.form_submit_button(
+            "Analyze",
+            icon=":material/arrow_upward:",
+            type="primary",
+            width="stretch",
         )
-
-        with left:
-            st.caption(
-                "Answers are limited to analyses supported by "
-                "the saved RetailIQ AI reports."
-            )
-
-        with right:
-            submitted = st.form_submit_button(
-                "Analyze",
-                icon=":material/arrow_upward:",
-                type="primary",
-                width="stretch",
-            )
 
     if submitted:
-        if question.strip():
+        if question and question.strip():
             return question.strip()
 
-        st.warning("Enter a question before submitting.")
+        st.warning("Enter or select a question before submitting.")
 
     return None
 
 
 def format_metric(value):
-    """Format supported numerical values for KPI cards."""
+    """Format verified numbers for KPI cards."""
 
     if isinstance(value, bool):
         return str(value)
@@ -288,10 +274,49 @@ def format_metric(value):
     return str(value)
 
 
-def show_metrics(evidence):
-    """Display key metrics directly from the original evidence."""
+def is_custom_sales_result(evidence):
+    """Identify results produced by approved custom sales operations."""
 
-    if not evidence:
+    if len(evidence) != 1:
+        return False
+
+    item = evidence[0]
+    records = item.get("records", [])
+
+    if not records:
+        return False
+
+    data = pd.DataFrame(records)
+
+    has_sales = "Total_Sales" in data.columns
+    has_entity = "Store" in data.columns or "Dept" in data.columns
+
+    source = item.get("source", "")
+
+    known_source = source in {
+        "business_analytics/02_store_performance.csv",
+        "business_analytics/03_department_performance.csv",
+    }
+
+    # Require a calculated ranking or comparison,
+    # not just any report containing sales values.
+    is_calculated = (
+        "Rank" in data.columns
+        or "Absolute_Sales_Difference" in data.columns
+    )
+
+    return (
+        known_source
+        and has_sales
+        and has_entity
+        and is_calculated
+    )
+
+
+def show_metrics(evidence):
+    """Display ordinary KPI values from saved project evidence."""
+
+    if not evidence or is_custom_sales_result(evidence):
         return
 
     records = evidence[0].get("records", [])
@@ -327,8 +352,210 @@ def show_metrics(evidence):
             st.metric(label, value)
 
 
+def show_custom_comparison_metrics(evidence):
+    """Show the sales totals and difference for two compared stores."""
+
+    if not is_custom_sales_result(evidence):
+        return False
+
+    records = evidence[0].get("records", [])
+
+    if len(records) != 2:
+        return False
+
+    first = records[0]
+    second = records[1]
+
+    required = {
+        "Store",
+        "Total_Sales",
+        "Absolute_Sales_Difference",
+        "Higher_Sales_Store",
+    }
+
+    if not (
+        required.issubset(first)
+        and required.issubset(second)
+    ):
+        return False
+
+    first_store = first["Store"]
+    second_store = second["Store"]
+
+    first_sales = first["Total_Sales"]
+    second_sales = second["Total_Sales"]
+
+    difference = first["Absolute_Sales_Difference"]
+    higher_store = first["Higher_Sales_Store"]
+
+    st.markdown("#### Store comparison")
+
+    columns = st.columns(3)
+
+    with columns[0]:
+        st.metric(
+            f"Store {int(first_store)} sales",
+            f"{float(first_sales):,.2f}",
+        )
+
+    with columns[1]:
+        st.metric(
+            f"Store {int(second_store)} sales",
+            f"{float(second_sales):,.2f}",
+        )
+
+    with columns[2]:
+        st.metric(
+            "Absolute sales difference",
+            f"{float(difference):,.2f}",
+        )
+
+    if higher_store is None:
+        st.caption("Both stores recorded equal historical sales.")
+    else:
+        st.caption(
+            f"Store {int(higher_store)} recorded higher "
+            "historical total sales."
+        )
+
+    return True
+
+
+def show_custom_ranking_metrics(evidence):
+    """Summarize a calculated store or department ranking."""
+
+    if not is_custom_sales_result(evidence):
+        return False
+
+    records = evidence[0].get("records", [])
+
+    if not records or "Rank" not in records[0]:
+        return False
+
+    first = records[0]
+
+    if "Store" in first:
+        label = "Store"
+        entity = first["Store"]
+
+    elif "Dept" in first:
+        label = "Department"
+        entity = first["Dept"]
+
+    else:
+        return False
+
+    st.markdown("#### Ranking summary")
+
+    columns = st.columns(3)
+
+    with columns[0]:
+        st.metric("Entries ranked", len(records))
+
+    with columns[1]:
+        st.metric(
+            "First ranked",
+            f"{label} {int(entity)}",
+        )
+
+    with columns[2]:
+        st.metric(
+            "First ranked sales",
+            f"{float(first['Total_Sales']):,.2f}",
+        )
+
+    st.caption(
+        "The first entry is determined by the requested ranking "
+        "direction: highest or lowest historical sales."
+    )
+
+    return True
+
+
+def show_custom_sales_chart(evidence, message_id):
+    """Visualize calculated store comparisons and rankings."""
+
+    if not is_custom_sales_result(evidence):
+        return False
+
+    records = evidence[0].get("records", [])
+
+    if not records:
+        return False
+
+    data = pd.DataFrame(records)
+
+    # Identify whether the result concerns stores or departments.
+    if "Store" in data.columns:
+        entity_column = "Store"
+        entity_label = "Store"
+
+    elif "Dept" in data.columns:
+        entity_column = "Dept"
+        entity_label = "Department"
+
+    else:
+        return False
+
+    # Use only the actual sales totals for the chart.
+    chart = data[
+        [entity_column, "Total_Sales"]
+    ].copy()
+
+    chart["Total_Sales"] = pd.to_numeric(
+        chart["Total_Sales"],
+        errors="coerce",
+    )
+
+    chart = chart.dropna(
+        subset=[entity_column, "Total_Sales"]
+    )
+
+    if chart.empty:
+        return False
+
+    chart["Category"] = chart[entity_column].apply(
+        lambda value: f"{entity_label} {int(value)}"
+    )
+
+    display = chart[
+        ["Category", "Total_Sales"]
+    ].copy()
+
+    st.markdown("#### Historical sales comparison")
+
+    # Each assistant response gets its own Streamlit widget key.
+    choice = st.segmented_control(
+        "Display",
+        ["Chart", "Data table"],
+        default="Chart",
+        key=f"ri_custom_sales_view_{message_id}",
+    )
+
+    if choice == "Data table":
+        st.dataframe(
+            display,
+            width="stretch",
+            hide_index=True,
+        )
+
+    else:
+        st.bar_chart(
+            display.set_index("Category"),
+            horizontal=True,
+            color="#8981f5",
+        )
+
+    st.caption(
+        "Sales totals are calculated or retrieved from saved "
+        "historical RetailIQ AI reports. They are not live sales."
+    )
+
+    return True
+
+
 def prepare_chart(evidence):
-    """Find a supported comparison chart from the saved report."""
+    """Prepare existing anomaly and forecasting comparisons."""
 
     for item in evidence:
         source = str(item.get("source", "")).lower()
@@ -339,7 +566,7 @@ def prepare_chart(evidence):
 
         data = pd.DataFrame(records)
 
-        # Anomaly comparison.
+        # Anomaly detector comparison.
         if "detector_agreement_summary" in source:
             required = [
                 "Statistical_Anomalies",
@@ -366,11 +593,11 @@ def prepare_chart(evidence):
                 return (
                     "Detector comparison",
                     chart,
-                    "Counts overlap. The 'Both detectors' group "
-                    "is included in the individual detector totals.",
+                    "Counts overlap. 'Both detectors' is included "
+                    "in the individual detector totals.",
                 )
 
-        # Forecast comparison in long-format reports.
+        # Forecast model comparison, when saved in long format.
         if "aligned_model_comparison" in source:
             model_col = next(
                 (
@@ -391,9 +618,12 @@ def prepare_chart(evidence):
             )
 
             if model_col and mae_col:
-                chart = data[[model_col, mae_col]].copy()
+                chart = data[
+                    [model_col, mae_col]
+                ].copy()
 
                 chart.columns = ["Category", "Value"]
+
                 chart["Value"] = pd.to_numeric(
                     chart["Value"],
                     errors="coerce",
@@ -405,19 +635,19 @@ def prepare_chart(evidence):
                     return (
                         "Forecast model comparison",
                         chart,
-                        "Lower MAE means better forecasting accuracy.",
+                        "Lower MAE indicates better forecast accuracy.",
                     )
 
     return None
 
 
 def show_chart(evidence, message_id):
-    """Let users switch between visual and tabular comparisons."""
+    """Show existing forecasting or anomaly charts."""
 
     result = prepare_chart(evidence)
 
     if result is None:
-        return
+        return False
 
     title, data, explanation = result
 
@@ -446,9 +676,11 @@ def show_chart(evidence, message_id):
 
     st.caption(explanation)
 
+    return True
+
 
 def show_sources(evidence):
-    """Display verified source references and their raw records."""
+    """Display filenames and original verified report records."""
 
     if not evidence:
         return
@@ -457,7 +689,6 @@ def show_sources(evidence):
 
     for index, item in enumerate(evidence, start=1):
         source = item.get("source", "Unknown report")
-
         st.caption(f"Source {index}: {source}")
 
     with st.expander("View original report data"):
@@ -482,7 +713,7 @@ def show_sources(evidence):
 
 
 def show_message(message, message_id):
-    """Render conversation messages and supporting visual insights."""
+    """Render a conversation message and its verified visualizations."""
 
     role = message["role"]
 
@@ -499,15 +730,17 @@ def show_message(message, message_id):
             return
 
         if not message.get("supported", False):
-            st.caption("Question not supported by available reports.")
+            st.caption(
+                "Question not supported by the available reports."
+            )
             return
 
         if message.get("generated", False):
             st.caption("✦ Gemini-generated explanation")
         else:
             st.caption(
-                "AI explanation unavailable. Verified results "
-                "are available below."
+                "AI explanation unavailable. "
+                "Verified results are available below."
             )
 
         evidence = message.get("evidence", [])
@@ -517,21 +750,42 @@ def show_message(message, message_id):
 
         st.divider()
 
-        show_metrics(evidence)
+        # Display the most relevant KPIs automatically.
+        if is_custom_sales_result(evidence):
+            comparison_shown = show_custom_comparison_metrics(
+                evidence
+            )
 
-        # Interactive insights and original report records.
+            if not comparison_shown:
+                show_custom_ranking_metrics(evidence)
+
+        else:
+            show_metrics(evidence)
+
         overview_tab, sources_tab = st.tabs([
             "Visual insights",
             "Source records",
         ])
 
         with overview_tab:
-            show_chart(evidence, message_id)
+            # New custom analytics charts take priority.
+            chart_shown = show_custom_sales_chart(
+                evidence,
+                message_id,
+            )
 
-            if prepare_chart(evidence) is None:
+            # Otherwise preserve existing model and anomaly charts.
+            if not chart_shown:
+                chart_shown = show_chart(
+                    evidence,
+                    message_id,
+                )
+
+            if not chart_shown:
                 st.info(
-                    "The verified source records are available "
-                    "in the Source records tab."
+                    "No dedicated chart is available for this "
+                    "report. Open Source records to explore "
+                    "the verified values."
                 )
 
         with sources_tab:
@@ -539,7 +793,7 @@ def show_message(message, message_id):
 
 
 def show_history():
-    """Display all messages from the current Streamlit session."""
+    """Display messages from the current Streamlit session."""
 
     messages = st.session_state["retailiq_chat_messages"]
 
@@ -553,24 +807,28 @@ def show_history():
 
 
 def process_question(question):
-    """Retrieve the project evidence and generate a Gemini response."""
+    """Send the question to the existing verified Gemini service."""
 
     question = question.strip()
 
     if not question:
         return
 
+    # Preserve the submitted question in the conversation.
     st.session_state["retailiq_chat_messages"].append({
         "role": "user",
         "content": question,
     })
 
+    # Generate only on submission, never during ordinary reruns.
     with st.spinner("Analyzing verified project results..."):
         try:
             result = answer_question(question)
 
         except Exception:
-            logger.exception("RetailIQ assistant request failed")
+            logger.exception(
+                "RetailIQ assistant request failed"
+            )
 
             result = {
                 "supported": False,
@@ -582,6 +840,7 @@ def process_question(question):
                 "generated": False,
             }
 
+    # Save the explanation and retrieved evidence together.
     st.session_state["retailiq_chat_messages"].append({
         "role": "assistant",
         "content": result["answer"],
@@ -591,74 +850,37 @@ def process_question(question):
     })
 
 
-
-
 def render():
-    """Display the chat with searchable question suggestions."""
+    """Display the complete interactive RetailIQ AI assistant."""
 
     initialize_chat()
     apply_styles()
     show_header()
 
-    messages = st.session_state.retailiq_chat_messages
+    messages = st.session_state["retailiq_chat_messages"]
 
-    # Show quick question buttons when the chat is empty.
+    # Suggested cards appear before the first conversation.
     selected_question = None
 
     if not messages:
         selected_question = show_suggestions()
 
-    # Display previous questions, answers, metrics and charts.
+    # Keep the custom question composer visible above chat history.
+    custom_question = show_question_input()
+
+    # Display previous questions and their visual insights.
     show_history()
 
-    st.divider()
+    # Both suggestions and custom input use the same backend.
+    question = custom_question or selected_question
 
-    st.markdown("### Ask RetailIQ AI")
-    st.caption(
-        "Start typing to see matching questions, or write "
-        "your own business question."
-    )
-
-    # A searchable select box supports both autocomplete
-    # and completely custom user-written questions.
-    with st.form(
-        "retailiq_question_form",
-        clear_on_submit=True,
-    ):
-        question = st.selectbox(
-            "Your business question",
-            options=QUESTION_SUGGESTIONS,
-            index=None,
-            accept_new_options=True,
-            placeholder="Type a question about your retail data...",
-            key="retailiq_smart_question",
-        )
-
-        submitted = st.form_submit_button(
-            "Ask RetailIQ AI",
-            type="primary",
-            icon=":material/send:",
-            width="stretch",
-        )
-
-    # Quick suggestions and custom questions share the backend.
-    final_question = None
-
-    if submitted:
-        if question and question.strip():
-            final_question = question.strip()
-        else:
-            st.warning("Please enter or select a question.")
-
-    elif selected_question:
-        final_question = selected_question
-
-    if final_question:
-        process_question(final_question)
+    if question:
+        process_question(question)
         st.rerun()
 
     st.caption(
-        "RetailIQ AI uses verified historical project reports. "
-        "Custom questions are accepted as input, but only "
-        "supported analyses can currently be answered."
+        "RetailIQ AI analyzes historical project reports, "
+        "not live sales data. Only supported analyses are answered. "
+        "Gemini explanations should be checked against "
+        "the verified source records."
     )

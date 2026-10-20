@@ -1,10 +1,11 @@
 
-"""Test safe Gemini question planning without real API requests."""
+"""Offline tests for the Gemini planner and custom-question router."""
 
 import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pandas as pd
 import pytest
 
 
@@ -15,9 +16,9 @@ import custom_question_router as router
 
 from question_planner import (
     is_candidate_question,
-    plan_question,
     requested_count,
     validate_plan,
+    plan_question,
 )
 
 
@@ -27,28 +28,28 @@ QUESTION = (
 )
 
 
-def test_custom_question_is_eligible():
-    """Recognize a flexible store-ranking question."""
+def test_eligible_question():
+    """Recognize a valid custom sales question."""
 
     assert is_candidate_question(QUESTION)
 
 
-def test_unsupported_period_is_rejected():
-    """Never ignore a requested date filter."""
+def test_unsupported_year():
+    """Reject an unsupported year filter."""
 
-    question = "Rank the top 5 stores during 2025."
+    assert not is_candidate_question(
+        "Show top 5 stores by sales in 2025."
+    )
 
-    assert not is_candidate_question(question)
 
-
-def test_written_ranking_count():
-    """Recognize numbers written as words."""
+def test_written_count():
+    """Recognize ranking counts written as words."""
 
     assert requested_count(QUESTION) == 3
 
 
-def test_valid_ranking_plan():
-    """Accept a safe ranking plan."""
+def test_valid_plan():
+    """Accept a valid store ranking plan."""
 
     plan = {
         "operation": "rank_stores",
@@ -59,7 +60,7 @@ def test_valid_ranking_plan():
     assert validate_plan(plan, QUESTION) == plan
 
 
-def test_wrong_ranking_count():
+def test_wrong_count():
     """Gemini must not change the requested count."""
 
     plan = {
@@ -71,8 +72,20 @@ def test_wrong_ranking_count():
     assert validate_plan(plan, QUESTION) is None
 
 
+def test_wrong_direction():
+    """Reject a plan that reverses the ranking."""
+
+    plan = {
+        "operation": "rank_stores",
+        "count": 3,
+        "highest": False,
+    }
+
+    assert validate_plan(plan, QUESTION) is None
+
+
 def test_fabricated_store_id():
-    """Gemini must use only explicitly requested store IDs."""
+    """Store identifiers must match the original question."""
 
     question = "Compare Store 10 and Store 20."
 
@@ -85,19 +98,19 @@ def test_fabricated_store_id():
     assert validate_plan(plan, question) is None
 
 
-def test_unknown_operation_is_rejected():
-    """Never accept arbitrary operations or generated commands."""
+def test_unknown_operation():
+    """Reject arbitrary commands or executable code."""
 
     plan = {
         "operation": "execute_python",
-        "code": "print('not allowed')",
+        "code": "print(1)",
     }
 
     assert validate_plan(plan, QUESTION) is None
 
 
-def test_unexpected_parameters_are_rejected():
-    """Reject extra parameters not in the approved contract."""
+def test_extra_parameters():
+    """Reject fields outside the approved planner contract."""
 
     plan = {
         "operation": "rank_stores",
@@ -110,7 +123,7 @@ def test_unexpected_parameters_are_rejected():
 
 
 def test_fake_gemini_json_response():
-    """Test model-response parsing without contacting Gemini."""
+    """Test Gemini response parsing without contacting the API."""
 
     class FakeModels:
         def generate_content(self, **kwargs):
@@ -137,9 +150,7 @@ def test_fake_gemini_json_response():
 
 
 def test_planner_connects_to_pandas(tmp_path, monkeypatch):
-    """A validated plan should use the approved Pandas calculation."""
-
-    import pandas as pd
+    """A validated plan should reach the real calculation function."""
 
     stores = pd.DataFrame({
         "Store": [10, 20, 30, 40],
@@ -149,7 +160,11 @@ def test_planner_connects_to_pandas(tmp_path, monkeypatch):
     store_path = tmp_path / "stores.csv"
     stores.to_csv(store_path, index=False)
 
-    monkeypatch.setattr(router, "STORE_REPORT", store_path)
+    monkeypatch.setattr(
+        router,
+        "STORE_REPORT",
+        store_path,
+    )
 
     monkeypatch.setattr(
         router,
@@ -161,6 +176,17 @@ def test_planner_connects_to_pandas(tmp_path, monkeypatch):
         },
     )
 
+    # An overly broad original match must not replace this ranking.
+    monkeypatch.setattr(
+        router,
+        "retrieve_existing_evidence",
+        lambda question: {
+            "supported": True,
+            "message": "Generic result",
+            "evidence": [{"records": []}],
+        },
+    )
+
     result = router.retrieve_evidence(QUESTION)
 
     assert result["supported"] is True
@@ -168,11 +194,13 @@ def test_planner_connects_to_pandas(tmp_path, monkeypatch):
 
     records = result["evidence"][0]["records"]
 
-    assert [row["Store"] for row in records] == [20, 30, 10]
+    assert [row["Store"] for row in records] == [
+        20, 30, 10
+    ]
 
 
 def test_unavailable_planner_is_safe(monkeypatch):
-    """If Gemini planning fails, never invent a ranking."""
+    """An unavailable planner must not invent results."""
 
     monkeypatch.setattr(
         router,
@@ -184,3 +212,46 @@ def test_unavailable_planner_is_safe(monkeypatch):
 
     assert result["supported"] is False
     assert result["evidence"] == []
+
+
+def test_original_question_not_overridden(monkeypatch):
+    """Keep existing forecasting questions working."""
+
+    expected = {
+        "supported": True,
+        "message": "Original result",
+        "evidence": [1],
+    }
+
+    monkeypatch.setattr(
+        router,
+        "retrieve_existing_evidence",
+        lambda question: expected,
+    )
+
+    result = router.retrieve_evidence(
+        "Which forecasting model has the best MAE?"
+    )
+
+    assert result is expected
+
+
+def test_year_request_cannot_be_silently_ignored(monkeypatch):
+    """Never ignore unsupported historical filters."""
+
+    monkeypatch.setattr(
+        router,
+        "retrieve_existing_evidence",
+        lambda question: {
+            "supported": True,
+            "message": "Generic result",
+            "evidence": [1],
+        },
+    )
+
+    result = router.retrieve_evidence(
+        "Show top 5 stores by sales in 2025."
+    )
+
+    assert result["supported"] is False
+

@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 # Use approved custom analytics first, then the existing context engine.
 from custom_question_router import retrieve_evidence
-from custom_question_router import retrieve_evidence
+from local_answer import format_verified_answer
 
 # Load private settings from the project root.
 ROOT = Path(__file__).resolve().parents[1]

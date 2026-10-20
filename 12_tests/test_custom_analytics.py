@@ -109,10 +109,12 @@ def test_duplicate_store(sample_sales):
 def test_invalid_count(sample_sales):
     """Reject zero or negative ranking sizes."""
 
-    with pytest.raises(ValueError, match="between"):
-        rank_sales(
-            sample_sales,
-            "Store",
-            "Total_Sales",
-            count=0,
-        )
+    # Test both invalid values against the updated error message.
+    for invalid_count in [0, -1]:
+        with pytest.raises(ValueError, match="at least 1"):
+            rank_sales(
+                sample_sales,
+                "Store",
+                "Total_Sales",
+                count=invalid_count,
+            )

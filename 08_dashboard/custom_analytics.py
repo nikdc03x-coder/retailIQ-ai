@@ -1,21 +1,23 @@
 
-"""Verified sales calculations for custom RetailIQ AI questions."""
+"""Verified sales calculations for RetailIQ AI custom questions."""
 
 import pandas as pd
 
 
 def prepare_sales(data, id_column, sales_column):
-    """Validate the supplied report and prepare numeric sales values."""
+    """Select and validate the columns needed for sales analysis."""
 
     required = {id_column, sales_column}
 
     if not required.issubset(data.columns):
         missing = required - set(data.columns)
-        raise ValueError(f"Missing required columns: {sorted(missing)}")
+        raise ValueError(
+            f"Missing required columns: {sorted(missing)}"
+        )
 
     result = data[[id_column, sales_column]].copy()
 
-    # Do not silently turn invalid values into zero sales.
+    # Sales must be numeric and complete.
     result[sales_column] = pd.to_numeric(
         result[sales_column],
         errors="raise",
@@ -30,27 +32,47 @@ def prepare_sales(data, id_column, sales_column):
     return result
 
 
-def rank_sales(data, id_column, sales_column, count=5, highest=True):
-    """Rank stores or departments by aggregated historical sales."""
+def rank_sales(
+    data,
+    id_column,
+    sales_column,
+    count=5,
+    highest=True,
+):
+    """Rank stores or departments using their verified sales totals."""
 
-    if not isinstance(count, int) or isinstance(count, bool):
+    if type(count) is not int:
         raise ValueError("Count must be an integer.")
 
-    if count < 1 or count > 45:
-        raise ValueError("Count must be between 1 and 45.")
+    if count < 1:
+        raise ValueError("Count must be at least 1.")
 
-    prepared = prepare_sales(data, id_column, sales_column)
+    if type(highest) is not bool:
+        raise ValueError("Highest must be a boolean.")
 
-    # Each store or department must have one final aggregated value.
+    prepared = prepare_sales(
+        data,
+        id_column,
+        sales_column,
+    )
+
+    if prepared.empty:
+        raise ValueError("No sales records available.")
+
     if prepared[id_column].duplicated().any():
-        raise ValueError("Expected one row per store or department.")
+        raise ValueError(
+            "Expected one row per store or department."
+        )
 
+    # The report determines the available number of entities.
+    # This works for both 45 stores and 81 departments.
     ranked = prepared.sort_values(
         by=[sales_column, id_column],
         ascending=[not highest, True],
-    ).head(count)
+    )
 
-    return ranked.reset_index(drop=True)
+    # Return up to the requested number of available entities.
+    return ranked.head(count).reset_index(drop=True)
 
 
 def compare_stores(
@@ -60,35 +82,61 @@ def compare_stores(
     id_column,
     sales_column,
 ):
-    """Compare historical aggregated sales for two selected stores."""
+    """Compare the total sales of two distinct existing stores."""
 
-    prepared = prepare_sales(data, id_column, sales_column)
+    prepared = prepare_sales(
+        data,
+        id_column,
+        sales_column,
+    )
 
     if prepared[id_column].duplicated().any():
-        raise ValueError("Expected one row per store.")
+        raise ValueError(
+            "Expected one row per store."
+        )
 
     first_store = int(first_store)
     second_store = int(second_store)
 
     if first_store == second_store:
-        raise ValueError("Choose two different stores.")
+        raise ValueError(
+            "Choose two different stores."
+        )
 
-    # Match store IDs numerically instead of comparing text labels.
     store_ids = pd.to_numeric(
         prepared[id_column],
         errors="raise",
     )
 
-    first_rows = prepared.loc[store_ids == first_store]
-    second_rows = prepared.loc[store_ids == second_store]
+    first_rows = prepared.loc[
+        store_ids == first_store
+    ]
+
+    second_rows = prepared.loc[
+        store_ids == second_store
+    ]
 
     if len(first_rows) != 1 or len(second_rows) != 1:
-        raise ValueError("One or both store IDs were not found.")
+        raise ValueError(
+            "One or both store IDs were not found."
+        )
 
-    first_sales = float(first_rows.iloc[0][sales_column])
-    second_sales = float(second_rows.iloc[0][sales_column])
+    first_sales = float(
+        first_rows.iloc[0][sales_column]
+    )
+
+    second_sales = float(
+        second_rows.iloc[0][sales_column]
+    )
 
     difference = first_sales - second_sales
+
+    if difference > 0:
+        higher_store = first_store
+    elif difference < 0:
+        higher_store = second_store
+    else:
+        higher_store = None
 
     return {
         "first_store": first_store,
@@ -96,9 +144,5 @@ def compare_stores(
         "first_sales": first_sales,
         "second_sales": second_sales,
         "difference": difference,
-        "higher_sales_store": (
-            first_store if difference > 0
-            else second_store if difference < 0
-            else None
-        ),
+        "higher_sales_store": higher_store,
     }

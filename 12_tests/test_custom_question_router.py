@@ -126,29 +126,15 @@ def test_invalid_ranking_count(sample_reports):
 
     assert result["supported"] is False
 
-
-def test_unsupported_date_is_not_ignored(monkeypatch):
-    """Do not silently discard a requested year filter."""
-
-    marker = {
-        "supported": False,
-        "message": "Historical year filter is unsupported.",
-        "evidence": [],
-    }
-
-    monkeypatch.setattr(
-        router,
-        "retrieve_existing_evidence",
-        lambda question: marker,
-    )
+def test_unsupported_date_is_not_ignored():
+    """Never answer a date-filtered ranking with all-time sales."""
 
     result = router.retrieve_evidence(
         "Show top 2 stores by sales in 2025."
     )
 
-    assert result is marker
-
-
+    assert result["supported"] is False
+    assert result["evidence"] == []
 def test_custom_question_reaches_gemini_service(sample_reports):
     """Check routing, evidence retrieval and numerical validation."""
 

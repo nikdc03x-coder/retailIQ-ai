@@ -5,12 +5,21 @@ import re
 from pathlib import Path
 
 import pandas as pd
-
+from question_planner import is_candidate_question, plan_question
 from business_context import (
     retrieve_evidence as retrieve_existing_evidence,
 )
 from custom_analytics import compare_stores, rank_sales
+from question_planner import (
+    is_candidate_question,
+    plan_question,
+    requested_count,
+)
+import sys
+from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "08_dashboard"))
 
 # Reuse the existing project reports and their verified columns.
 ROOT = Path(__file__).resolve().parents[1]
@@ -362,14 +371,28 @@ def store_comparison(first_store, second_store):
 
 
 def retrieve_evidence(question):
-    """Run an approved calculation or use the existing context engine."""
+    """Use verified custom analytics or the existing context engine."""
 
+    # Fast, predictable questions are handled without Gemini.
     request = parse_custom_question(question)
 
-    # Existing forecasting, SHAP, anomalies and original questions
-    # continue through the established Business Context Engine.
     if request is None:
-        return retrieve_existing_evidence(question)
+        # Preserve all existing forecasting, anomaly, SHAP
+        # and original business-question functionality.
+        existing = retrieve_existing_evidence(question)
+
+        if existing["supported"]:
+            return existing
+
+        # Only consider Gemini planning for approved sales topics.
+        # Unsupported questions return the original safe response.
+        if not is_candidate_question(question):
+            return existing
+
+        request = plan_question(question)
+
+        if request is None:
+            return existing
 
     try:
         operation = request["operation"]

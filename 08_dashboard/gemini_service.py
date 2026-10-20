@@ -11,8 +11,9 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from business_context import retrieve_evidence
-
+# Use approved custom analytics first, then the existing context engine.
+from custom_question_router import retrieve_evidence
+from custom_question_router import retrieve_evidence
 
 # Load private settings from the project root.
 ROOT = Path(__file__).resolve().parents[1]

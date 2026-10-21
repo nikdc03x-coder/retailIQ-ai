@@ -1,5 +1,5 @@
 
-"""Explain verified RetailIQ AI evidence using Gemini."""
+"""Explain verified RetailIQ AI evidence using Gemini or Python."""
 
 import json
 import logging
@@ -11,19 +11,20 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Use approved custom analytics first, then the existing context engine.
+# Retrieve only supported analyses and verified project evidence.
 from custom_question_router import retrieve_evidence
+
+# Format custom sales calculations without another Gemini API call.
 from local_answer import format_verified_answer
 
-# Load private settings from the project root.
+
+# Load private configuration from the project root.
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / ".env", override=False)
 
-
-# Configure logging and Gemini model.
 logger = logging.getLogger(__name__)
 
-# The model can be changed in .env without editing Python code.
+# Keep the selected Gemini model configurable through .env.
 MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 
@@ -47,7 +48,7 @@ Rules:
 """
 
 
-# Recognize complete values such as 38,304.76 and 3.68%.
+# Extract complete numeric values from generated explanations.
 NUMBER_PATTERN = re.compile(
     r"(?<![\w.,])[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)"
     r"(?:\.\d+)?%?(?![\w,]|\.\d)"
@@ -55,7 +56,7 @@ NUMBER_PATTERN = re.compile(
 
 
 def build_prompt(question, evidence):
-    """Combine the project question with its verified evidence."""
+    """Combine the business question with its selected evidence."""
 
     context = {
         "project": "RetailIQ AI",
@@ -72,16 +73,14 @@ def build_prompt(question, evidence):
 
 
 def extract_numbers(value):
-    """Extract numeric values from report fields or text."""
+    """Extract supported numeric values from text or report fields."""
 
     if value is None or isinstance(value, bool):
         return []
 
-    # Numeric fields are already stored as numbers.
     if isinstance(value, (int, float, Decimal)):
         values = [str(value)]
 
-    # Text fields may contain several numbers.
     elif isinstance(value, str):
         values = NUMBER_PATTERN.findall(value)
 
@@ -106,7 +105,7 @@ def extract_numbers(value):
 
 
 def collect_evidence_numbers(evidence, question=""):
-    """Collect numbers appearing in the question and source records."""
+    """Collect numbers from the question and verified records."""
 
     numbers = extract_numbers(question)
 
@@ -124,7 +123,7 @@ def collect_evidence_numbers(evidence, question=""):
 
 
 def is_supported_number(value, evidence_numbers):
-    """Allow report numbers rounded to two decimal places."""
+    """Accept values that match the evidence after minor rounding."""
 
     tolerance = Decimal("0.0051")
 
@@ -136,10 +135,10 @@ def is_supported_number(value, evidence_numbers):
 
 
 def validate_generated_answer(answer, evidence, question=""):
-    """Reject generated explanations containing unsupported numbers.
+    """Reject Gemini explanations containing unsupported numbers.
 
-    This checks numeric values, not every factual relationship.
-    The original report remains available for verification.
+    This validation checks numerical values, not every factual
+    relationship. Original evidence remains available in the UI.
     """
 
     evidence_numbers = collect_evidence_numbers(
@@ -157,24 +156,28 @@ def validate_generated_answer(answer, evidence, question=""):
 
 
 def fallback_result(evidence, sources, reason="unavailable"):
-    """Preserve project evidence when Gemini cannot answer."""
+    """Preserve evidence when Gemini cannot explain a result."""
 
     messages = {
         "unavailable": (
-            "Verified project results were found, but an AI explanation "
-            "is not currently available. Review the evidence below."
+            "Verified project results were found, but an AI "
+            "explanation is not currently available. "
+            "Review the evidence below."
         ),
-
         "validation_failed": (
-            "Gemini returned numerical values that could not be verified "
-            "against the retrieved evidence. The explanation was withheld. "
+            "Gemini returned numerical values that could not "
+            "be verified against the retrieved evidence. "
+            "The explanation was withheld. "
             "Review the evidence below."
         ),
     }
 
     return {
         "supported": True,
-        "answer": messages.get(reason, messages["unavailable"]),
+        "answer": messages.get(
+            reason,
+            messages["unavailable"],
+        ),
         "sources": sources,
         "evidence": evidence,
         "generated": False,
@@ -183,7 +186,7 @@ def fallback_result(evidence, sources, reason="unavailable"):
 
 
 def log_gemini_error(error):
-    """Log safe diagnostic details without exposing the API key."""
+    """Log useful diagnostics without exposing private credentials."""
 
     error_type = type(error).__name__
     error_code = getattr(error, "code", None)
@@ -198,48 +201,41 @@ def log_gemini_error(error):
         error_status or "Unknown",
     )
 
-    # Add practical suggestions for common API failures.
     if error_code == 400:
         logger.warning(
-            "The Gemini request was rejected. "
-            "Check model compatibility and request configuration."
+            "Gemini rejected the request. Check model compatibility."
         )
 
     elif error_code == 401:
         logger.warning(
-            "Gemini authentication failed. "
-            "Check the configured API key."
+            "Gemini authentication failed. Check the configured key."
         )
 
     elif error_code == 403:
         logger.warning(
-            "Gemini access denied. "
-            "Check API permissions and account eligibility."
+            "Gemini access denied. Check API permissions."
         )
 
     elif error_code == 404:
         logger.warning(
-            "The requested Gemini model or endpoint was not found. "
-            "List available models and check GEMINI_MODEL."
+            "The Gemini model or endpoint was not found."
         )
 
     elif error_code == 429:
         logger.warning(
-            "Gemini quota or rate limit reached. "
-            "Check usage limits before retrying."
+            "Gemini quota or rate limit reached."
         )
 
     elif error_code == 503:
         logger.warning(
-            "Gemini is temporarily unavailable. "
-            "Try again later."
+            "Gemini is temporarily unavailable."
         )
 
 
 def answer_question(question, client=None):
-    """Answer supported questions using verified RetailIQ AI evidence."""
+    """Answer using verified local calculations or grounded Gemini."""
 
-    # Retrieve verified project data before calling Gemini.
+    # Always retrieve approved project evidence first.
     result = retrieve_evidence(question)
 
     if not result["supported"] or not result["evidence"]:
@@ -253,25 +249,60 @@ def answer_question(question, client=None):
         }
 
     evidence = result["evidence"]
-    sources = [item["source"] for item in evidence]
 
+    sources = [
+        item["source"]
+        for item in evidence
+    ]
+
+    # FAST LOCAL ANSWER
+    #
+    # Custom rankings and store comparisons already contain
+    # verified calculations from Pandas.
+    #
+    # When no explicit Gemini test client was supplied, format
+    # those results locally instead of making another API call.
+    #
+    # A supplied client still exercises the original Gemini
+    # path, keeping existing Gemini integration tests meaningful.
+    if client is None:
+        local_answer = format_verified_answer(result)
+
+        if local_answer is not None:
+            return {
+                "supported": True,
+                "answer": local_answer,
+                "sources": sources,
+                "evidence": evidence,
+                "generated": False,
+                "validation_status": "verified_local",
+            }
+
+    # GEMINI EXPLANATION
+    #
+    # Forecasting, anomaly, SHAP and other supported questions
+    # continue using the existing grounded Gemini workflow.
     close_client = False
 
     try:
-        # Use the supplied client for tests, otherwise create a real one.
         if client is None:
             api_key = os.getenv("GEMINI_API_KEY")
 
             if not api_key:
-                logger.info("Gemini API key is not configured.")
-                return fallback_result(evidence, sources)
+                logger.info(
+                    "Gemini API key is not configured."
+                )
+
+                return fallback_result(
+                    evidence,
+                    sources,
+                )
 
             from google import genai
 
             client = genai.Client(api_key=api_key)
             close_client = True
 
-        # Configure the request with the official Gemini SDK.
         from google.genai import types
 
         config = types.GenerateContentConfig(
@@ -279,7 +310,6 @@ def answer_question(question, client=None):
             max_output_tokens=600,
         )
 
-        # Generate an explanation using only selected project evidence.
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=build_prompt(question, evidence),
@@ -288,12 +318,17 @@ def answer_question(question, client=None):
 
         answer = (response.text or "").strip()
 
-        # A missing response must not break the dashboard.
         if not answer:
-            logger.warning("Gemini returned an empty explanation.")
-            return fallback_result(evidence, sources)
+            logger.warning(
+                "Gemini returned an empty explanation."
+            )
 
-        # Reject numerical claims that do not match the report data.
+            return fallback_result(
+                evidence,
+                sources,
+            )
+
+        # Check numeric claims before displaying generated text.
         if not validate_generated_answer(
             answer,
             evidence,
@@ -309,7 +344,6 @@ def answer_question(question, client=None):
                 reason="validation_failed",
             )
 
-        # Return the explanation with its original evidence.
         return {
             "supported": True,
             "answer": answer,
@@ -320,13 +354,15 @@ def answer_question(question, client=None):
         }
 
     except Exception as error:
-        # Handle API failures without crashing Streamlit.
         log_gemini_error(error)
 
-        return fallback_result(evidence, sources)
+        return fallback_result(
+            evidence,
+            sources,
+        )
 
     finally:
-        # Close only clients created inside this function.
+        # Only close clients created inside this function.
         if close_client:
             try:
                 client.close()

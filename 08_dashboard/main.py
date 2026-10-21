@@ -1,4 +1,3 @@
-
 """RetailIQ AI — Interactive business intelligence platform."""
 
 import sys

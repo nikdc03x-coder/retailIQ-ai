@@ -1,0 +1,33 @@
+{
+  "sales": {
+    "rows": 421570,
+    "key_columns": [
+      "Store",
+      "Dept",
+      "Date"
+    ],
+    "missing_key_rows": 0,
+    "duplicate_key_rows": 0
+  },
+  "features": {
+    "rows": 8190,
+    "key_columns": [
+      "Store",
+      "Date"
+    ],
+    "missing_key_rows": 0,
+    "duplicate_key_rows": 0
+  },
+  "stores": {
+    "rows": 45,
+    "key_columns": [
+      "Store"
+    ],
+    "missing_key_rows": 0,
+    "duplicate_key_rows": 0
+  },
+  "relationships": {
+    "sales_store_dates_without_features": 0,
+    "sales_stores_without_metadata": 0
+  }
+}

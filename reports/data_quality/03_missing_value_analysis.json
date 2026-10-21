@@ -1,0 +1,481 @@
+{
+  "total_rows": 8190,
+  "invalid_dates": 0,
+  "rows_with_missing_features": 6121,
+  "rows_with_missing_features_pct": 74.74,
+  "by_feature": {
+    "MarkDown1": {
+      "missing_count": 4158,
+      "missing_pct": 50.77
+    },
+    "MarkDown2": {
+      "missing_count": 5269,
+      "missing_pct": 64.33
+    },
+    "MarkDown3": {
+      "missing_count": 4577,
+      "missing_pct": 55.89
+    },
+    "MarkDown4": {
+      "missing_count": 4726,
+      "missing_pct": 57.7
+    },
+    "MarkDown5": {
+      "missing_count": 4140,
+      "missing_pct": 50.55
+    },
+    "CPI": {
+      "missing_count": 585,
+      "missing_pct": 7.14
+    },
+    "Unemployment": {
+      "missing_count": 585,
+      "missing_pct": 7.14
+    }
+  },
+  "by_store_missing_pct": {
+    "1": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 59.89,
+      "MarkDown3": 51.1,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "2": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.79,
+      "MarkDown3": 51.1,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "3": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 62.09,
+      "MarkDown3": 57.14,
+      "MarkDown4": 52.2,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "4": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.79,
+      "MarkDown3": 51.65,
+      "MarkDown4": 51.65,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "5": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 63.74,
+      "MarkDown3": 58.24,
+      "MarkDown4": 53.85,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "6": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.79,
+      "MarkDown3": 51.65,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "7": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 63.74,
+      "MarkDown3": 52.75,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "8": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 59.89,
+      "MarkDown3": 52.2,
+      "MarkDown4": 51.65,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "9": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 65.38,
+      "MarkDown3": 57.69,
+      "MarkDown4": 53.85,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "10": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 62.64,
+      "MarkDown3": 52.75,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "11": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.24,
+      "MarkDown3": 51.65,
+      "MarkDown4": 51.65,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "12": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 60.44,
+      "MarkDown3": 53.85,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "13": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.79,
+      "MarkDown3": 51.1,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "14": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 59.34,
+      "MarkDown3": 51.65,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "15": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 60.99,
+      "MarkDown3": 54.4,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "16": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 64.29,
+      "MarkDown3": 57.69,
+      "MarkDown4": 51.65,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "17": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 63.19,
+      "MarkDown3": 54.95,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "18": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.24,
+      "MarkDown3": 52.75,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "19": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.79,
+      "MarkDown3": 52.2,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "20": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 56.59,
+      "MarkDown3": 51.1,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "21": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 60.44,
+      "MarkDown3": 53.3,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "22": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 60.99,
+      "MarkDown3": 54.4,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "23": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 59.89,
+      "MarkDown3": 53.3,
+      "MarkDown4": 51.65,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "24": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.79,
+      "MarkDown3": 51.65,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "25": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 60.44,
+      "MarkDown3": 53.85,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "26": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 60.44,
+      "MarkDown3": 52.75,
+      "MarkDown4": 51.1,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "27": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 57.14,
+      "MarkDown3": 51.1,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "28": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 59.34,
+      "MarkDown3": 52.75,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "29": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 62.64,
+      "MarkDown3": 53.85,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "30": {
+      "MarkDown1": 51.65,
+      "MarkDown2": 82.42,
+      "MarkDown3": 63.74,
+      "MarkDown4": 84.07,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "31": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 59.89,
+      "MarkDown3": 51.65,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "32": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 57.69,
+      "MarkDown3": 51.1,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "33": {
+      "MarkDown1": 51.65,
+      "MarkDown2": 80.22,
+      "MarkDown3": 88.46,
+      "MarkDown4": 90.66,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "34": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 59.34,
+      "MarkDown3": 52.75,
+      "MarkDown4": 51.65,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "35": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 65.93,
+      "MarkDown3": 53.3,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "36": {
+      "MarkDown1": 51.65,
+      "MarkDown2": 81.32,
+      "MarkDown3": 89.01,
+      "MarkDown4": 86.81,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "37": {
+      "MarkDown1": 52.75,
+      "MarkDown2": 80.77,
+      "MarkDown3": 62.09,
+      "MarkDown4": 92.86,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "38": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 82.97,
+      "MarkDown3": 61.54,
+      "MarkDown4": 83.52,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "39": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 59.34,
+      "MarkDown3": 52.2,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "40": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 61.54,
+      "MarkDown3": 53.85,
+      "MarkDown4": 51.65,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "41": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 58.79,
+      "MarkDown3": 51.1,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "42": {
+      "MarkDown1": 53.3,
+      "MarkDown2": 82.42,
+      "MarkDown3": 62.09,
+      "MarkDown4": 91.21,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "43": {
+      "MarkDown1": 51.1,
+      "MarkDown2": 84.07,
+      "MarkDown3": 60.99,
+      "MarkDown4": 91.76,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "44": {
+      "MarkDown1": 51.65,
+      "MarkDown2": 85.16,
+      "MarkDown3": 64.84,
+      "MarkDown4": 89.01,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    },
+    "45": {
+      "MarkDown1": 50.55,
+      "MarkDown2": 60.44,
+      "MarkDown3": 51.65,
+      "MarkDown4": 50.55,
+      "MarkDown5": 50.55,
+      "CPI": 7.14,
+      "Unemployment": 7.14
+    }
+  },
+  "by_year_missing_pct": {
+    "2010": {
+      "MarkDown1": 100.0,
+      "MarkDown2": 100.0,
+      "MarkDown3": 100.0,
+      "MarkDown4": 100.0,
+      "MarkDown5": 100.0,
+      "CPI": 0.0,
+      "Unemployment": 0.0
+    },
+    "2011": {
+      "MarkDown1": 84.87,
+      "MarkDown2": 87.48,
+      "MarkDown3": 85.38,
+      "MarkDown4": 87.09,
+      "MarkDown5": 84.62,
+      "CPI": 0.0,
+      "Unemployment": 0.0
+    },
+    "2012": {
+      "MarkDown1": 0.43,
+      "MarkDown2": 32.61,
+      "MarkDown3": 11.07,
+      "MarkDown4": 14.1,
+      "MarkDown5": 0.0,
+      "CPI": 0.0,
+      "Unemployment": 0.0
+    },
+    "2013": {
+      "MarkDown1": 0.15,
+      "MarkDown2": 22.15,
+      "MarkDown3": 11.85,
+      "MarkDown4": 14.67,
+      "MarkDown5": 0.0,
+      "CPI": 43.33,
+      "Unemployment": 43.33
+    }
+  }
+}

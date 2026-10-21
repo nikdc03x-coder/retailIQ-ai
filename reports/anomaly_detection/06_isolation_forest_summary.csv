@@ -1,0 +1,2 @@
+Method,Calibration_Split,Contamination,Validation_Observations,Test_Observations,Anomalies,Anomaly_Rate_Pct
+Isolation Forest,Validation,0.02,945,990,9,0.9090909090909091

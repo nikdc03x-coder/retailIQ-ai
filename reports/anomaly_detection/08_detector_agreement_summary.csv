@@ -1,0 +1,2 @@
+Test_Observations,Statistical_Anomalies,Isolation_Anomalies,Both,Statistical_Only,Isolation_Only,Neither,Union,Jaccard_Similarity,Overall_Agreement_Pct
+990,10,9,4,6,5,975,15,0.26666666666666666,98.88888888888889

@@ -1,0 +1,2 @@
+Method,Threshold,Calibration_Split,Validation_Observations,Test_Observations,Residual_Mean,Residual_Std,Anomalies,Anomaly_Rate_Pct
+Global residual Z-score,3.0,Validation,945,990,1309.132052910053,72238.01889393227,10,1.0101010101010102

@@ -1,4 +1,3 @@
-
 """Modern AI Business Assistant for RetailIQ AI."""
 
 import logging
@@ -735,12 +734,23 @@ def show_message(message, message_id):
             )
             return
 
-        if message.get("generated", False):
-            st.caption("✦ Gemini-generated explanation")
+        # Identify whether Python or Gemini produced this explanation.
+        validation_status = message.get("validation_status")
+
+        if validation_status == "verified_local":
+            st.caption(
+                "✓ Verified Python explanation · Historical project data"
+            )
+
+        elif message.get("generated", False):
+            st.caption(
+                "✦ Gemini-generated explanation · Numerically checked"
+            )
+
         else:
             st.caption(
                 "AI explanation unavailable. "
-                "Verified results are available below."
+                "Verified source records are available below."
             )
 
         evidence = message.get("evidence", [])
@@ -840,12 +850,14 @@ def process_question(question):
                 "generated": False,
             }
 
-    # Save the explanation and retrieved evidence together.
+    # Save answer origin so it remains correct after Streamlit reruns.
     st.session_state["retailiq_chat_messages"].append({
         "role": "assistant",
         "content": result["answer"],
         "supported": result["supported"],
         "generated": result["generated"],
+        "validation_status": result.get("validation_status", "unknown"),
+        "sources": result.get("sources", []),
         "evidence": result.get("evidence", []),
     })
 

@@ -1,191 +1,116 @@
 # RetailIQ AI
 
-### Understanding Retail Sales Using Data Science and Machine Learning
+RetailIQ AI turns historical Walmart retail sales into business analytics, evaluated one-week-ahead store forecasts, anomaly investigation queues, SHAP explanations, and evidence-backed business answers in a Streamlit dashboard.
 
-RetailIQ AI is a data science project that explores how historical retail sales data can help us understand business performance, predict future sales, and identify unusual patterns.
+This is a file-based research application. Raw CSVs become a validated Parquet dataset; experiments save CSV reports and joblib model artifacts. The dashboard reads those artifacts without retraining. There is no implemented database, REST API, authentication layer, or live sales integration.
 
-I built this project to learn how different data science techniques can work together to solve a real business problem.
+## Features
 
-Instead of focusing only on training a machine learning model, I wanted to understand the complete process — from exploring the data to checking whether the predictions are reliable and presenting the results in a dashboard.
+- Data inspection: keys, duplicates, missing values, source relationships, and unusual raw sales.
+- Validated sales/features/store joins that preserve department-level sales records and negative sales.
+- Weekly trends, store and department rankings, and holiday comparisons.
+- Naive previous-week, Random Forest, and XGBoost forecasts with chronological evaluation.
+- MAE, RMSE, per-store WAPE/bias, and three expanding-window backtests.
+- Validation-calibrated statistical residual and Isolation Forest detectors with agreement analysis.
+- Global and local SHAP contributions, checked against saved predictions.
+- Ten pages in one dashboard: overview, dataset overview, business analytics, sales explorer, forecasting, reliability, anomalies, SHAP, assistant and project overview.
+- Natural-language rankings and store comparisons calculated in pandas; optional constrained Gemini planning and explanations with numeric checks and offline fallbacks.
 
-## What Problem Does It Solve?
+## Setup
 
-Retail businesses collect large amounts of sales data, but finding useful information in that data is not always easy.
-
-For example, a business might want to know:
-
-- Which stores and departments generate the most sales?
-- How do sales change over time?
-- Can we predict next week's sales?
-- Are the predictions equally reliable for every store?
-- Can we identify unusual sales patterns that may need investigation?
-
-RetailIQ AI explores these questions using historical retail data.
-
-## What Can the Project Do?
-
-**1. Business Analytics**
-
-Explore sales trends, compare stores and departments, and understand differences between holiday and non-holiday periods.
-
-**2. Sales Forecasting**
-
-Train and compare machine learning models to predict weekly store sales.
-
-**3. Forecast Reliability**
-
-Measure prediction errors and check how model performance changes across stores and different time periods.
-
-**4. Anomaly Detection**
-
-Use statistical methods and Isolation Forest to flag unusual sales observations for further investigation.
-
-**5. Interactive Dashboard**
-
-Explore the results through a Streamlit dashboard with interactive charts and filters.
-
-## Dataset
-
-This project uses a publicly available Walmart retail sales dataset from Kaggle.
-
-The dataset contains approximately 421,570 sales records from 45 stores, covering February 2010 to October 2012.
-
-It includes weekly sales, store details, department information, holiday indicators and other related features.
-
-The original dataset is used for learning and research. It does not represent live business data.
-
-## Tools Used
-
-| Tool             | Purpose                         |
-| ---------------- | ------------------------------- |
-| Python           | Main programming language       |
-| pandas and NumPy | Data processing and analysis    |
-| scikit-learn     | Machine learning and evaluation |
-| XGBoost          | Sales forecasting               |
-| Plotly           | Interactive charts              |
-| Streamlit        | Dashboard                       |
-| pytest           | Automated testing               |
-| Git              | Version control                 |
-
-## Main Results
-
-The best-performing forecasting model in our selected experiment was XGBoost.
-
-On the held-out test data:
-
-| Metric             |    Result |
-| ------------------ | --------: |
-| XGBoost MAE        | 38,304.76 |
-| Naive baseline MAE | 51,307.24 |
-| MAE improvement    |    25.34% |
-| XGBoost WAPE       |     3.68% |
-
-The project also compared two anomaly detection approaches. Together, they flagged 15 out of 990 test observations for further review.
-
-These results come from historical experiments. They do not guarantee the same performance on new retail data.
-
-## Run the Dashboard
-
-First, open the project folder and activate the Python virtual environment.
-
-Install the project's required Python libraries using its dependency configuration.
-
-Then start the dashboard:
-
-```bash
-python -m streamlit run 08_dashboard/main.py
-```
-
-Open the local URL shown in the terminal, usually `http://localhost:8501`.
-
-**Note:** The dashboard reads previously generated analysis and experiment results. Those files must be present before running it.
-
-## Testing
-
-To run the automated tests:
-
-```bash
-python -m pytest 12_tests/ -q
-```
-
-At the end of Phase 07, all 73 automated tests passed.
-
-## What I Learned
-
-This project helped me understand that building a useful machine learning system involves more than getting a good accuracy score.
-
-I learned why it is important to compare models with simple baselines, test predictions on later time periods, investigate errors and avoid treating every unusual observation as a confirmed anomaly.
-
-I also gained experience organizing a Python project, documenting experiments, writing automated tests and building an interactive dashboard.
-
-## Limitations
-
-RetailIQ AI is a learning and research project, not a production retail management system.
-
-The dataset is historical, forecasting performance may change on new data, and flagged anomalies require human investigation.
-
-The forecasting experiments use one-week-ahead predictions with previous actual sales available.
-
-## Project Documentation
-
-For more details about the project, its experiments and results, see the documentation in the `00_documentation` folder.
-
-The final project report will provide a shorter, complete explanation of the research process.
-
-## Project Status
-
-The data analysis, forecasting, reliability evaluation, anomaly detection and interactive dashboard phases have been implemented.
-
-The project is now in its final documentation and presentation stage.
-
-## Getting Started
-
-This project was developed using Python 3.12.
-
-### 1. Clone the repository
-
-```bash
-git clone <YOUR_REPOSITORY_URL>
-cd retailiq-ai
-```
-
-### 2. Create a virtual environment
-
-```bash
-python -m venv .venv
-source .venv/Scripts/activate
-```
-
-On Windows PowerShell, activate it using:
+Use Python 3.12 or later; development and verification used Python 3.12. Run commands from the repository root. On PowerShell:
 
 ```powershell
+python -m venv .venv
 .venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
 ```
 
-### 3. Install the libraries
+On macOS/Linux, activate with `source .venv/bin/activate`. For runtime only use `python -m pip install -r requirements.txt`; for notebooks add `python -m pip install -e ".[notebooks]"`. Runtime dependencies live in `pyproject.toml`.
 
-```bash
-python -m pip install -r requirements.txt
+Optionally copy `.env.example` to `.env`. Leave `GEMINI_API_KEY` blank for local calculations and evidence-only fallback answers. `GEMINI_MODEL`, `GEMINI_TIMEOUT_MS` (100–120000 milliseconds), and `LOG_LEVEL` are validated. Process environment variables take precedence over `.env`. The configured model must be available to your Gemini account.
+
+```powershell
+python -m retailiq check-config
 ```
 
-### 4. Prepare the data
+Never commit `.env`, private datasets, or model artifacts. For a wheel installation or external artifact directory, set `RETAILIQ_HOME` in the process environment to the directory containing `data/`, `reports/`, `models/`, and optionally `.env`. In an editable checkout it defaults to this repository, independently of the working directory.
 
-The project uses the Walmart retail sales dataset from Kaggle.
+## Generate reports
 
-Download the original dataset and follow the project's data preparation and experiment steps.
+Obtain the Walmart Sales Forecast dataset (the original source is recorded in `docs/phases/01_data_ingestion.md`) and put `train.csv`, `features.csv`, and `stores.csv` in `data/raw/`. `test.csv` from the competition contains no actual sales and is not used for the held-out historical evaluation. Raw datasets and generated results are intentionally ignored by Git.
 
-The dashboard reads saved analytical results from `13_results/`, so those reports must be generated before starting the dashboard.
-
-### 5. Run the dashboard
-
-```bash
-python -m streamlit run 08_dashboard/main.py
+```powershell
+python -m retailiq pipeline --list
+python -m retailiq pipeline
 ```
 
-Open the local URL displayed in the terminal.
+The pipeline runs data inspection/validation/transformation, analytics, forecasting, reliability, anomalies, and SHAP in dependency order. It stops on the first failed stage and writes results to `reports/`, the analytical dataset to `data/processed/`, and fitted models to `models/`. Rerunning overwrites generated artifacts; use `RETAILIQ_HOME` to isolate experiments.
 
-### 6. Run the tests
+To rerun one group, use `python -m retailiq pipeline --stage analytics` (or `data`, `forecasting`, `reliability`, `anomalies`, `explainability`). Selected groups assume their prerequisite artifacts already exist; they do not automatically regenerate earlier groups. `python scripts/run_pipeline.py --list` is a convenience wrapper. Individual stages run as modules, for example `python -m retailiq.forecasting.features`.
 
-```bash
-python -m pytest 12_tests/ -q
+## Run the dashboard
+
+```powershell
+python -m streamlit run app.py
 ```
+
+Use the local URL printed by Streamlit. All pages, including the earlier dataset viewer and sales explorer, share the same sidebar and application configuration. The dashboard needs the generated reports; it does not train models on page visits. Gemini explanations require network access and a key; supported rankings and store comparisons can run entirely locally. Saved CSV changes invalidate dashboard caches using file modification time and size.
+
+## Directory structure
+
+```text
+app.py                       Streamlit entry point
+src/retailiq/
+  config.py                  Paths, dotenv loading, typed validated settings
+  logging_config.py          Application logging
+  reports.py                 Framework-independent confined CSV access
+  cli.py, pipeline.py        Ordered research runner
+  data/                      Ingestion, quality checks, transformation
+  analytics/                 Weekly, store/department, holiday analysis
+  forecasting/               Series, baseline, features, models, comparison
+  reliability/               Error summaries, relative errors, backtesting
+  anomalies/                 Statistical/Isolation Forest scoring, agreement
+  explainability/            SHAP generation and reconstruction checks
+  assistant/                 Context, analytics, router, planner, service, answers
+  dashboard/                 Shared navigation, cached loading and components
+    pages/                   All ten dashboard pages with render() functions
+tests/                       Existing regressions and new runtime/UI tests
+docs/                        Architecture, interview guide, review, phase history
+notebooks/                   Learning and exploration notebooks
+scripts/                     Thin convenience launchers
+data/{raw,processed,validated}/
+reports/                     Generated JSON/CSV/Parquet research artifacts
+models/                      Generated joblib model artifacts
+```
+
+This feature-based Python layout fits the actual application. There are no artificial route/controller folders because the project has no HTTP server. Models in `models/` are serialized ML artifacts; model training code lives in `forecasting/`.
+
+## Verification
+
+```powershell
+python -m pytest -q
+python -m pytest -m "not integration" -q
+python -m ruff check .
+python -m ruff format --check .
+python -m build
+```
+
+The full suite requires local source data and generated reports. `integration` marks these dataset/report-dependent modules and dashboard smoke checks; `-m "not integration"` runs isolated tests on a fresh checkout. Tests disable developer Gemini keys and use fake clients. The GitHub Actions workflow runs isolated tests, lint, formatting, and package builds without private data. A sandbox with a restricted temporary directory may need `--basetemp=<writable-test-directory>`.
+
+## Recorded experiment results
+
+On the aligned 990-row test cohort, XGBoost MAE is **38,304.76**, compared with **51,307.24** for the naive baseline and **43,642.60** for Random Forest: about **25.34%** lower MAE than baseline. XGBoost was selected by validation MAE; test metrics are reported afterward. Overall test WAPE is approximately **3.68%**. The anomaly detectors flag **15 of 990** store-weeks in their union (10 statistical, 9 Isolation Forest, 4 overlap).
+
+These are historical one-week-ahead experiments using previously observed actual sales. They are not recursive multiweek forecasts. Anomaly flags require investigation, and SHAP explains model behavior rather than business causation. Numeric grounding does not prove that every generated statement is factually correct.
+
+## Project guides
+
+- [Architecture and data flow](docs/03_architecture_and_data_flow.md)
+- [Executable pipeline manifest](docs/04_pipeline_manifest.md)
+- [Interview and presentation guide](docs/INTERVIEW_GUIDE.md)
+- [Phase 12 review and migration notes](docs/PHASE_12_REVIEW.md)
+- [Historical research report](docs/PROJECT_REPORT.md)
+
+Historical phase documents retain their original experiment/test counts; the Phase 12 review records current verification.

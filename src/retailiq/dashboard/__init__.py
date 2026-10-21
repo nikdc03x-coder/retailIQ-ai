@@ -1,0 +1,1 @@
+"""RetailIQ AI dashboard package."""

@@ -19,8 +19,8 @@ data/processed/*
 models/*
 !models/.gitkeep
 
-13_results/*
-!13_results/.gitkeep
+reports/*
+!reports/.gitkeep
 # Downloaded datasets and Python cache
 data/downloads/
 __pycache__/
@@ -29,3 +29,11 @@ __pycache__/
 .env
 .env.*
 !.env.example
+# Packaging and development artifacts
+*.egg-info/
+build/
+dist/
+.ruff_cache/
+.coverage
+htmlcov/
+work/

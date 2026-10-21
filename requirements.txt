@@ -1,14 +1,2 @@
-streamlit>=1.40,<2
-pandas>=2.2,<3
-numpy>=1.26,<3
-plotly>=5.24,<7
-jupyterlab>=4,<5
-ipykernel>=6,<8
-pytest>=8,<10
-python-dotenv>=1,<2matplotlib>=3.8,<4
-scikit-learn
-xgboost
-python-dotenv>=1,<2
-matplotlib>=3.8,<4
-shap>=0.46,<1
-google-genai>=1,<2
+# Runtime dependencies are maintained in pyproject.toml.
+-e .

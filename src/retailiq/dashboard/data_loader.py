@@ -14,11 +14,30 @@ def _read_csv(path: Path, modified_ns: int, size: int) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
+@st.cache_data(show_spinner=False)
+def _read_parquet(path: Path, modified_ns: int, size: int) -> pd.DataFrame:
+    """Invalidate analytical data when the pipeline replaces its file."""
+    return pd.read_parquet(path)
+
+
+def read_csv_file(path: Path) -> pd.DataFrame:
+    """Load a source CSV using the same freshness policy as saved reports."""
+    path = path.resolve()
+    stat = path.stat()
+    return _read_csv(path, stat.st_mtime_ns, stat.st_size)
+
+
+def read_parquet_file(path: Path) -> pd.DataFrame:
+    """Read analytical data with a cache key tied to its current file metadata."""
+    path = path.resolve()
+    stat = path.stat()
+    return _read_parquet(path, stat.st_mtime_ns, stat.st_size)
+
+
 def load_csv(relative_path: str) -> pd.DataFrame:
     """Read a confined report and invalidate the cache when it is regenerated."""
     path = resolve_report_path(relative_path)
-    stat = path.stat()
-    return _read_csv(path, stat.st_mtime_ns, stat.st_size)
+    return read_csv_file(path)
 
 
 def load_weekly_sales() -> pd.DataFrame:

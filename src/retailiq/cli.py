@@ -3,6 +3,7 @@
 import argparse
 
 from retailiq.config import ConfigurationError, get_settings
+from retailiq.dashboard.readiness import find_data_issues
 from retailiq.logging_config import configure_logging
 from retailiq.pipeline import STAGES, planned_steps, run_pipeline
 
@@ -14,6 +15,9 @@ def main(argv: list[str] | None = None) -> int:
     pipeline.add_argument("--stage", choices=["all", *STAGES], default="all")
     pipeline.add_argument("--list", action="store_true", help="List steps without changing files")
     commands.add_parser("check-config", help="Validate configuration without printing secrets")
+    commands.add_parser(
+        "check-data", help="Check that dashboard datasets and reports are available"
+    )
     args = parser.parse_args(argv)
     try:
         settings = get_settings()
@@ -23,6 +27,16 @@ def main(argv: list[str] | None = None) -> int:
                 "Configuration valid. Gemini: "
                 + ("configured" if settings.gemini_api_key else "offline")
             )
+        elif args.command == "check-data":
+            issues = find_data_issues()
+            if issues:
+                print("Dashboard data is not ready:\n" + "\n".join(issues))
+                print(
+                    "Place train.csv, features.csv and stores.csv in data/raw, "
+                    "then run python -m retailiq pipeline."
+                )
+                return 1
+            print("Dashboard data is ready for all ten pages.")
         elif args.list:
             print("\n".join(planned_steps(args.stage)))
         else:

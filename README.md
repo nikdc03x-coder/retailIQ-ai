@@ -52,11 +52,21 @@ To rerun one group, use `python -m retailiq pipeline --stage analytics` (or `dat
 
 ## Run the dashboard
 
+The launcher uses this project's `.venv` and checks that the data needed for all pages is present, readable, nonempty and has the required columns. Source CSVs and analytical Parquet also validate chart inputs such as dates, numeric sales and holiday flags:
+
+```powershell
+python start_dashboard.py
+```
+
+If port 8501 is already in use, pass `--port 8502`. From another folder, pass the absolute path to `start_dashboard.py`. To check data without starting a server, use `.venv\Scripts\python.exe -m retailiq check-data`.
+
+When using an already activated project environment, you can also run Streamlit directly:
+
 ```powershell
 python -m streamlit run app.py
 ```
 
-Use the local URL printed by Streamlit. All pages, including the earlier dataset viewer and sales explorer, share the same sidebar and application configuration. The dashboard needs the generated reports; it does not train models on page visits. Gemini explanations require network access and a key; supported rankings and store comparisons can run entirely locally. Saved CSV changes invalidate dashboard caches using file modification time and size.
+Use the local URL printed by Streamlit. All pages, including the earlier dataset viewer and sales explorer, share the same sidebar and application configuration. The dashboard needs the generated reports; it does not train models on page visits. Gemini explanations require network access and a key; supported rankings and store comparisons can run entirely locally. Source CSV, report CSV and analytical Parquet changes invalidate dashboard caches using file modification time and size on the next rerun. Dataset Overview and Sales Explorer show recovery instructions for invalid files. Business Analytics supports a single selected store and empty selections.
 
 ## Directory structure
 

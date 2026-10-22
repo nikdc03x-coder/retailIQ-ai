@@ -21,6 +21,9 @@ models/*
 
 reports/*
 !reports/.gitkeep
+
+# Keep legacy generated reports and locally installed tools out of source control.
+13_results/
 # Downloaded datasets and Python cache
 data/downloads/
 __pycache__/

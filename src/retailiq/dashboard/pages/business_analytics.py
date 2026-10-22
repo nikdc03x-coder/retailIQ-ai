@@ -171,13 +171,15 @@ def render():
             key="analytics_store_metric",
         )
 
-    limit = st.slider(
-        "Number of stores",
-        min_value=1,
-        max_value=len(selected),
-        value=min(10, len(selected)),
-        key="analytics_ranking_limit",
-    )
+    limit = 1
+    if len(selected) > 1:
+        limit = st.slider(
+            "Number of stores",
+            min_value=1,
+            max_value=len(selected),
+            value=min(10, len(selected)),
+            key="analytics_ranking_limit",
+        )
 
     ascending = ranking == "Bottom Stores"
 
@@ -261,13 +263,15 @@ def render():
         "The store filter does not apply to this section."
     )
 
-    department_limit = st.slider(
-        "Departments to display",
-        min_value=5,
-        max_value=len(departments),
-        value=min(15, len(departments)),
-        key="analytics_department_limit",
-    )
+    department_limit = 1
+    if len(departments) > 1:
+        department_limit = st.slider(
+            "Departments to display",
+            min_value=1,
+            max_value=len(departments),
+            value=min(15, len(departments)),
+            key="analytics_department_limit",
+        )
 
     department_metric = st.selectbox(
         "Department metric",

@@ -37,3 +37,12 @@ def test_all_page_files_are_registered_in_one_dashboard():
         if path.stem != "__init__"
     }
     assert {config["render"].__module__ for config in NAVIGATION.values()} == page_modules
+
+
+def test_unknown_saved_page_recovers_to_overview():
+    app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=30)
+    app.session_state["retailiq_active_page"] = "Old Dashboard Page"
+    app.run()
+    assert app.session_state["retailiq_active_page"] == "Overview"
+    assert not app.exception, [item.message for item in app.exception]
+    assert app.metric[2].value == "143"

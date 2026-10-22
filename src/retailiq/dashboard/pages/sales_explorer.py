@@ -1,18 +1,21 @@
 """Interactive business analytics for historical Walmart sales."""
 
-import pandas as pd
+import logging
+
 import plotly.express as px
 import streamlit as st
 
 from retailiq.config import ROOT
+from retailiq.dashboard.data_loader import read_parquet_file
+from retailiq.dashboard.validation import ANALYTICAL_SCHEMA, validate_source
 
 SOURCE = ROOT / "data/processed/retail_analytical.parquet"
+logger = logging.getLogger(__name__)
 
 
-@st.cache_data
 def load_data():
-    """Read the verified dataset once and reuse it across reruns."""
-    return pd.read_parquet(SOURCE)
+    """Read current analytical data and validate fields used by the charts."""
+    return validate_source(read_parquet_file(SOURCE), ANALYTICAL_SCHEMA, "Analytical dataset")
 
 
 def show_chart(data, x, y, title, chart_type, color=None):
@@ -49,13 +52,15 @@ def render():
 
     st.caption("Historical Walmart sales | February 2010 – October 2012")
 
-    if not SOURCE.is_file():
+    try:
+        data = load_data()
+    except (OSError, ValueError, TypeError) as error:
+        logger.warning("Cannot load Sales Explorer data: %s", error, exc_info=True)
         st.error(
-            "Analytical dataset not found. Run python -m retailiq pipeline --stage data first."
+            "Cannot load analytical dataset. "
+            f"{error} Run python -m retailiq pipeline --stage data to rebuild it."
         )
         return
-
-    data = load_data()
 
     st.sidebar.header("Analysis Filters")
 

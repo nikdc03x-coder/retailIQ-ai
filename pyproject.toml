@@ -41,6 +41,7 @@ markers = ["integration: requires local raw datasets or generated research repor
 [tool.ruff]
 target-version = "py312"
 line-length = 100
+extend-exclude = ["data", "models", "reports", "13_results"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]

@@ -5,11 +5,15 @@ Input: Original Walmart CSV files
 Output: Interactive Streamlit dataset overview
 """
 
+import logging
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
 from retailiq.config import ROOT
+from retailiq.dashboard.data_loader import read_csv_file
+from retailiq.dashboard.validation import RAW_SCHEMAS, validate_source
 
 RAW_DIR = ROOT / "data" / "raw"
 
@@ -18,9 +22,9 @@ DATA_FILES = {
     "Features": "features.csv",
     "Stores": "stores.csv",
 }
+logger = logging.getLogger(__name__)
 
 
-@st.cache_data
 def load_data():
     """Read the original datasets without modifying them."""
 
@@ -32,7 +36,7 @@ def load_data():
         if not path.is_file():
             raise FileNotFoundError(f"Missing dataset: {path}")
 
-        datasets[name] = pd.read_csv(path)
+        datasets[name] = validate_source(read_csv_file(path), RAW_SCHEMAS[filename], filename)
 
     return datasets
 
@@ -50,8 +54,9 @@ def render():
 
     try:
         datasets = load_data()
-    except (FileNotFoundError, pd.errors.ParserError) as error:
-        st.error(str(error))
+    except (OSError, ValueError, TypeError) as error:
+        logger.warning("Cannot load Dataset Overview sources: %s", error, exc_info=True)
+        st.error(f"Cannot load source data. {error} Check the CSV files in data/raw and retry.")
         return
 
     sales = datasets["Sales"]

@@ -339,7 +339,7 @@ def main():
         return
 
     # Keep the selected page when Streamlit refreshes widgets.
-    if "retailiq_active_page" not in st.session_state:
+    if st.session_state.get("retailiq_active_page") not in NAVIGATION:
         st.session_state["retailiq_active_page"] = "Overview"
 
     apply_sidebar_styles()

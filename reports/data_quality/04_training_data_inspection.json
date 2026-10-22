@@ -1,0 +1,42 @@
+{
+  "sales_quality": {
+    "rows": 421570,
+    "negative_sales": 1285,
+    "zero_sales": 73,
+    "missing_sales": 0,
+    "invalid_dates": 0
+  },
+  "joined_rows": 421570,
+  "unmatched_sales_rows": 0,
+  "training_missing_features": {
+    "MarkDown1": {
+      "count": 270889,
+      "percentage": 64.26
+    },
+    "MarkDown2": {
+      "count": 310322,
+      "percentage": 73.61
+    },
+    "MarkDown3": {
+      "count": 284479,
+      "percentage": 67.48
+    },
+    "MarkDown4": {
+      "count": 286603,
+      "percentage": 67.98
+    },
+    "MarkDown5": {
+      "count": 270138,
+      "percentage": 64.08
+    },
+    "CPI": {
+      "count": 0,
+      "percentage": 0.0
+    },
+    "Unemployment": {
+      "count": 0,
+      "percentage": 0.0
+    }
+  },
+  "sales_total_preserved": true
+}

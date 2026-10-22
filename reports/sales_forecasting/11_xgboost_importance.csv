@@ -1,0 +1,11 @@
+Feature,Importance
+Rolling_Mean_4,0.7444802
+Lag_1,0.1167907
+Lag_4,0.059073023
+Lag_2,0.03788097
+WeekOfYear,0.017177034
+Month,0.0075864517
+Rolling_Std_4,0.007543818
+IsHoliday,0.006612279
+Year,0.0016785016
+Store,0.0011770468
